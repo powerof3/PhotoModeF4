@@ -1,0 +1,24 @@
+{
+  "name": "photomode-f4",
+  "version-string": "1.0.0",
+  "description": "",
+  "homepage": "",
+  "license": "MIT",
+  "dependencies": [
+    "clib-util",
+    "directxtex",
+    "fmt",
+    "freetype",
+    {
+      "name": "imgui",
+      "features": [ "dx11-binding", "win32-binding", "freetype", "wchar32" ]
+    },
+    "rapidfuzz",
+    "rsm-mmio",
+    "spdlog",
+    "srell",
+    "unordered-dense",
+    "xbyak"
+  ],
+  "builtin-baseline": "76d153790caf0592fce8fc4484aa6db18c7d00d4"
+}
