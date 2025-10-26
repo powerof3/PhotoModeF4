@@ -31,7 +31,7 @@ namespace Font
 		std::string ps4;
 	};
 
-	class Manager final : public ISingleton<Manager>
+	class Manager final : public REX::Singleton<Manager>
 	{
 	public:
 		void LoadSettings();

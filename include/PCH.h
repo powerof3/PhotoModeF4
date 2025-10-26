@@ -10,6 +10,7 @@
 
 #include "F4SE/F4SE.h"
 #include "RE/Fallout.h"
+#include "REX/REX/Singleton.h"
 
 #include <codecvt>
 #include <fstream>
@@ -35,7 +36,6 @@
 #include <ClibUtil/RNG.hpp>
 #include <ClibUtil/hash.hpp>
 #include <ClibUtil/simpleINI.hpp>
-#include <ClibUtil/singleton.hpp>
 #include <ClibUtil/string.hpp>
 
 #define DLLEXPORT __declspec(dllexport)
@@ -47,7 +47,6 @@ using EventResult = RE::BSEventNotifyControl;
 using namespace std::literals;
 using namespace clib_util;
 using namespace string::literals;
-using namespace clib_util::singleton;
 
 template <class T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;

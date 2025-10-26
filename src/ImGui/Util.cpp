@@ -87,7 +87,7 @@ namespace ImGui
 		ImGuiContext& g = *GImGui;
 		if (IsKeyReleased(ImGuiKey_Escape) || IsKeyReleased(ImGuiKey_NavGamepadCancel)) {
 			g.NavId = 0;
-			g.NavDisableHighlight = true;
+			g.NavCursorVisible = false;
 			SetWindowFocus(nullptr);
 		}
 	}

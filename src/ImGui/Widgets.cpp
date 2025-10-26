@@ -18,31 +18,31 @@ namespace ImGui
 
 	void UpdateWidgetPadding(std::int32_t index, const char* paddingText)
 	{
-		if (CURRENT_TAB != index) {		
+		if (CURRENT_TAB != index) {
 			CURRENT_TAB = index;
 			MAX_WIDGET_PADDING = ImGui::CalcTextSize(paddingText).x;
 		}
 	}
 
-	bool ComboWithFilter(const char* label, int* current_item, const std::vector<std::string>& items, int popup_max_height_in_items)
+	bool ComboWithFilter(const char* label, int* current_item, const std::vector<std::string>& items, int popup_max_height_in_items /*= -1*/)
 	{
+		const bool allow_repeat = ImGuiInputFlags_Repeat;
+
 		ImGuiContext& g = *GImGui;
 
 		ImGuiWindow* window = GetCurrentWindow();
-		if (window->SkipItems) {
+		if (window->SkipItems)
 			return false;
-		}
 
-		const int items_count = static_cast<int>(items.size());
+		int items_count = static_cast<int>(items.size());
 
-		// Use imgui Items_ getters to support more input formats.
-		const char* preview_value = nullptr;
-		if (*current_item >= 0 && *current_item < items_count) {
+		// Could use imgui Items_ getters to support more input formats.
+		const char* preview_value = NULL;
+		if (*current_item >= 0 && *current_item < items_count)
 			preview_value = items[*current_item].c_str();
-		}
 
 		static int  focus_idx = -1;
-		static char pattern_buffer[MAX_PATH] = { 0 };
+		static char pattern_buffer[256] = { 0 };
 
 		bool value_changed = false;
 
@@ -79,15 +79,13 @@ namespace ImGui
 		}
 		popup_max_height_in_items = ImMin(popup_max_height_in_items, show_count);
 
-		if (!(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSizeConstraint)) {
-			const int numItems = popup_max_height_in_items + 2;  // extra for search bar
-			SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX,
-														   CalcMaxPopupHeightFromItemCount(numItems)));
+		if (!(g.NextWindowData.HasFlags & ImGuiNextWindowDataFlags_HasSizeConstraint)) {
+			int numItems = popup_max_height_in_items + 3;  // extra for search bar
+			SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX, CalcMaxPopupHeightFromItemCount(numItems)));
 		}
 
-		if (!BeginCombo(label, preview_value, ImGuiComboFlags_None)) {
+		if (!BeginCombo(label, preview_value, ImGuiComboFlags_None))
 			return false;
-		}
 
 		if (!is_already_open) {
 			focus_idx = *current_item;
@@ -96,25 +94,24 @@ namespace ImGui
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, GetUserStyleColorVec4(USER_STYLE::kComboBoxTextBox));
 		ImGui::PushStyleColor(ImGuiCol_Text, GetUserStyleColorVec4(USER_STYLE::kComboBoxText));
-		ImGui::PushStyleColor(ImGuiCol_NavHighlight, ImVec4(0, 0, 0, 0));
-
+		ImGui::PushStyleColor(ImGuiCol_NavCursor, ImVec4());
 		ImGui::PushItemWidth(-FLT_MIN);
 		// Filter input
-		if (!is_already_open) {
+		if (!is_already_open)
 			ImGui::SetKeyboardFocusHere();
-		}
-		InputText("##ComboWithFilter_inputText", pattern_buffer, MAX_PATH, ImGuiInputTextFlags_AlwaysOverwrite);
+		InputText("##ComboWithFilter_inputText", pattern_buffer, 256, ImGuiInputTextFlags_AutoSelectAll);
 
 		ImGui::PopStyleColor(3);
 
 		int move_delta = 0;
-		if (IsKeyPressed(ImGuiKey_UpArrow) || IsKeyPressed(ImGuiKey_GamepadDpadUp)) {
+		// Use Shortcut to prevent NavEnableKeyboard from also responding to nav.
+		if (Shortcut(ImGuiKey_UpArrow, allow_repeat) || IsKeyPressed(ImGuiKey_GamepadDpadUp)) {
 			--move_delta;
-		} else if (IsKeyPressed(ImGuiKey_DownArrow) || IsKeyPressed(ImGuiKey_GamepadDpadDown)) {
+		} else if (Shortcut(ImGuiKey_DownArrow, allow_repeat) || IsKeyPressed(ImGuiKey_GamepadDpadDown)) {
 			++move_delta;
-		} else if (IsKeyPressed(ImGuiKey_PageUp)) {
+		} else if (Shortcut(ImGuiKey_PageUp, ImGuiInputFlags_None)) {
 			move_delta -= popup_max_height_in_items;
-		} else if (IsKeyPressed(ImGuiKey_PageDown)) {
+		} else if (Shortcut(ImGuiKey_PageDown, ImGuiInputFlags_None)) {
 			move_delta += popup_max_height_in_items;
 		}
 
@@ -134,22 +131,17 @@ namespace ImGui
 
 		// Copied from ListBoxHeader
 		// If popup_max_height_in_items == -1, default height is maximum 7.
-		const float height_in_items_f = (popup_max_height_in_items < 0 ? ImMin(items_count, 7) :
-																		 popup_max_height_in_items) +
-		                                0.25f;
+		float  height_in_items_f = (popup_max_height_in_items < 0 ? ImMin(items_count, 7) : popup_max_height_in_items) + 0.25f;
 		ImVec2 size;
 		size.x = 0.0f;
 		size.y = GetTextLineHeightWithSpacing() * height_in_items_f + g.Style.FramePadding.y * 2.0f;
 
-		ImGui::PushStyleColor(ImGuiCol_NavHighlight, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_NavCursor, ImVec4());
 		if (ImGui::BeginListBox("##ComboWithFilter_itemList", size)) {
 			for (int i = 0; i < show_count; i++) {
 				int idx = is_filtering ? itemScoreVector[i].first : i;
 				PushID(reinterpret_cast<void*>(static_cast<intptr_t>(idx)));
 				const bool  item_selected = (idx == focus_idx);
-				if (item_selected) {
-					PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
-				}
 				const char* item_text = items[idx].c_str();
 				if (Selectable(item_text, item_selected)) {
 					value_changed = true;
@@ -157,26 +149,27 @@ namespace ImGui
 					CloseCurrentPopup();
 					RE::UIUtils::PlayMenuSound("UIMenuFocus");
 				}
+
 				if (item_selected) {
 					SetItemDefaultFocus();
 					// SetItemDefaultFocus doesn't work so also check IsWindowAppearing.
 					if (move_delta != 0 || IsWindowAppearing()) {
 						SetScrollHereY();
 					}
-					if (item_selected) {
-						PopStyleColor();
-					}
 				}
 				PopID();
 			}
 			ImGui::EndListBox();
 
-			if (IsKeyPressed(ImGuiKey_Enter) || IsKeyPressed(ImGuiKey_Space) || IsKeyPressed(ImGuiKey_NavGamepadActivate)) {
+			const bool repeat = false;
+			if (IsKeyPressed(ImGuiKey_Enter, repeat) || IsKeyPressed(ImGuiKey_Space, repeat) || IsKeyPressed(ImGuiKey_NavGamepadActivate)) {
 				value_changed = true;
 				*current_item = focus_idx;
 				CloseCurrentPopup();
 				RE::UIUtils::PlayMenuSound("UIMenuOK");
-			} else if (IsKeyPressed(ImGuiKey_Escape) || IsKeyPressed(ImGuiKey_NavGamepadCancel)) {
+			}
+			// Using Shortcut would make the first Esc clear input (even if empty) and the second close the popup.
+			else if (IsKeyPressed(ImGuiKey_Escape, repeat) || IsKeyPressed(ImGuiKey_NavGamepadCancel)) {
 				value_changed = false;
 				CloseCurrentPopup();
 				RE::UIUtils::PlayMenuSound("UIMenuCancel");
@@ -186,9 +179,8 @@ namespace ImGui
 		ImGui::PopItemWidth();
 		ImGui::EndCombo();
 
-		if (value_changed) {
+		if (value_changed)
 			MarkItemEdited(g.LastItemData.ID);
-		}
 
 		return value_changed;
 	}
@@ -198,19 +190,19 @@ namespace ImGui
 		bool selected = false;
 
 		LeftAlignedText(label);
-		
+
 		float spacing = ImGui::GetStyle().ItemSpacing.x;
 		SetCursorPosX(GetCursorPosX() + (MAX_WIDGET_PADDING - spacing));
-		
+
 		PushFont(MANAGER(Font)->GetLargeFont());
-		
+
 		auto toggleText = *a_toggle ? TRANSLATE("$ON") : TRANSLATE("$OFF");
 		AlignForWidth(CalcTextSize(toggleText).x + spacing);
 
 		const auto hovered = GetFocusID() == GetCurrentWindow()->GetID(label);
 		BeginGroup();
 		{
-			InvisibleButton(label, ImVec2(0.1f,0.1f));
+			InvisibleButton(label, ImVec2(0.1f, 0.1f));
 			SameLine();
 			if (hovered) {
 				PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
@@ -251,7 +243,6 @@ namespace ImGui
 		const bool        isHovered = GetFocusID() == id;
 		ImVec2            cursorPos = GetCursorPos();
 
-
 		// Default format string when passing NULL
 		if (format == nullptr)
 			format = DataTypeGetInfo(data_type)->PrintFmt;
@@ -259,9 +250,9 @@ namespace ImGui
 		// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
 		char        value_buf[64];
 		const char* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, format);
-		
+
 		AlignTextToFramePadding();
-		
+
 		auto width = CalcTextSize(value_buf, value_buf_end).x;
 
 		if (width < MAX_WIDGET_PADDING) {
@@ -270,7 +261,7 @@ namespace ImGui
 
 		if (isHovered) {
 			PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
-		}	
+		}
 		TextUnformatted(value_buf, value_buf_end);
 		if (isHovered) {
 			PopStyleColor();
@@ -306,7 +297,7 @@ namespace ImGui
 		if (format == nullptr)
 			format = DataTypeGetInfo(data_type)->PrintFmt;
 
-		const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+		const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.ItemFlags);
 		bool       temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
 		if (!temp_input_is_active) {
 			// Tabbing or CTRL-clicking on Slider turns it into an input box
@@ -317,6 +308,10 @@ namespace ImGui
 			if (make_active && temp_input_allowed)
 				if ((clicked && g.IO.KeyCtrl) || (g.NavActivateId == id && (g.NavActivateFlags & ImGuiActivateFlags_PreferInput)))
 					temp_input_is_active = true;
+
+			// Store initial value (not used by main lib but available as a convenience but some mods e.g. to revert)
+			if (make_active)
+				memcpy(&g.ActiveIdValueOnActivation, p_data, DataTypeGetInfo(data_type)->Size);
 
 			if (make_active && !temp_input_is_active) {
 				SetActiveID(id, window);

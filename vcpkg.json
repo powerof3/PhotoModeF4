@@ -7,7 +7,6 @@
   "dependencies": [
     "clib-util",
     "directxtex",
-    "fmt",
     "freetype",
     {
       "name": "imgui",
@@ -15,10 +14,13 @@
     },
     "rapidfuzz",
     "rsm-mmio",
-    "spdlog",
+    {
+      "name": "spdlog",
+      "features": [ "wchar" ]
+    },
     "srell",
     "unordered-dense",
     "xbyak"
   ],
-  "builtin-baseline": "76d153790caf0592fce8fc4484aa6db18c7d00d4"
+  "builtin-baseline": "62efe42f53b1886a20cbeb22ee9a27736d20f149"
 }
