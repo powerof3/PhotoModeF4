@@ -482,7 +482,11 @@ namespace Input
 		}
 
 		if (!photoMode->IsHidden() || hotKey == hotKeys->EscapeKey()) {
-			SendKeyEvent(static_cast<RE::BS_BUTTON_CODE>(key), a_event->QPressed());
+			if (inputDevice == DEVICE::kKeyboard && hotKey == std::to_underlying(RE::BS_BUTTON_CODE::kTab)) {
+				io.AddKeyEvent(ImGuiKey_Tab, a_event->QJustPressed());
+			} else {
+				SendKeyEvent(static_cast<RE::BS_BUTTON_CODE>(key), a_event->QPressed());
+			}
 		}
 	}
 }
