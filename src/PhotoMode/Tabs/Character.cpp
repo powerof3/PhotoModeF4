@@ -127,6 +127,9 @@ namespace PhotoMode
 
 		ImGui::Spacing();
 
+		if (!currentState.visible) {
+			ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().DisabledAlpha);
+		}
 		ImGui::BeginDisabled(!currentState.visible);
 		{
 			if (ImGui::BeginTabBar("Player#TopBar", 0)) {
@@ -208,6 +211,9 @@ namespace PhotoMode
 			}
 		}
 		ImGui::EndDisabled();
+		if (!currentState.visible) {
+			ImGui::PopStyleVar();
+		}
 
 		drawList->ChannelsMerge();
 	}

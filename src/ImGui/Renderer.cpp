@@ -101,6 +101,9 @@ namespace ImGui::Renderer
 				ImGui_ImplWin32_NewFrame();
 				ImGui::NewFrame();
 				{
+					// disable windowing
+					GImGui->NavWindowingTarget = nullptr;
+					
 					photoMode->Draw();
 				}
 				ImGui::EndFrame();

@@ -125,6 +125,9 @@ namespace PhotoMode
 		}
 
 		if (dofInstance) {
+			if (!enableDOF) {
+				ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().DisabledAlpha);
+			}
 			ImGui::BeginDisabled(!enableDOF);
 			{
 				ImGui::Indent();
@@ -148,6 +151,9 @@ namespace PhotoMode
 				ImGui::Unindent();
 			}
 			ImGui::EndDisabled();
+			if (!enableDOF) {
+				ImGui::PopStyleVar();
+			}
 		}
 
 		drawList->ChannelsMerge();

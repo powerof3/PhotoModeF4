@@ -335,7 +335,13 @@ namespace PhotoMode
 
 		ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration);
 		{
-			ImGui::BeginDisabled(ShouldBlockInput());
+			bool shouldBlockInput = ShouldBlockInput();
+
+			if (shouldBlockInput) {
+				ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().Alpha);
+			}
+
+			ImGui::BeginDisabled(shouldBlockInput);
 			{
 				ImGui::PushFont(NULL, MANAGER(Font)->GetDefaultFontSize().first);
 				{
@@ -353,8 +359,12 @@ namespace PhotoMode
 			}
 			ImGui::EndDisabled();
 
+			if (shouldBlockInput) {
+				ImGui::PopStyleVar(ImGuiStyleVar_DisabledAlpha);
+			}
+
 			if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::IsKeyReleased(ImGuiKey_GamepadFaceRight)) {
-				if (IsHidden() || noItemsFocused && !ImGui::GetIO().WantTextInput && !ShouldBlockInput()) {
+				if (IsHidden() || noItemsFocused && !ImGui::GetIO().WantTextInput && !shouldBlockInput) {
 					Deactivate();
 					RE::UIUtils::PlayMenuSound("UIMenuCancel");
 				}

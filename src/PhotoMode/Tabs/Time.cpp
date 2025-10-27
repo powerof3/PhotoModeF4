@@ -91,7 +91,11 @@ namespace PhotoMode
 			return hovered;
 		});
 
-		ImGui::BeginDisabled(RE::Sky::GetSingleton()->mode == RE::Sky::Mode::kInterior);
+		auto isSkyInterior = RE::Sky::GetSingleton()->mode == RE::Sky::Mode::kInterior;
+		if (isSkyInterior) {
+			ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().DisabledAlpha);
+		}
+		ImGui::BeginDisabled(isSkyInterior);
 		{
 			weathers.GetFormResultFromCombo([&](const auto& weather) {
 				RE::Sky::GetSingleton()->ForceWeather(weather, true);
@@ -99,6 +103,9 @@ namespace PhotoMode
 			});
 		}
 		ImGui::EndDisabled();
+		if (isSkyInterior) {
+			ImGui::PopStyleVar();
+		}
 
 		drawList->ChannelsMerge();
 	}
