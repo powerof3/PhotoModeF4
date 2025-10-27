@@ -143,19 +143,23 @@ namespace ImGui
 				PushID(reinterpret_cast<void*>(static_cast<intptr_t>(idx)));
 				const bool  item_selected = (idx == focus_idx);
 				const char* item_text = items[idx].c_str();
+				if (item_selected) {
+					PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
+					PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
+				}
 				if (Selectable(item_text, item_selected)) {
 					value_changed = true;
 					*current_item = idx;
 					CloseCurrentPopup();
 					RE::UIUtils::PlayMenuSound("UIMenuFocus");
 				}
-
 				if (item_selected) {
 					SetItemDefaultFocus();
 					// SetItemDefaultFocus doesn't work so also check IsWindowAppearing.
 					if (move_delta != 0 || IsWindowAppearing()) {
 						SetScrollHereY();
 					}
+					PopStyleColor(2);
 				}
 				PopID();
 			}
