@@ -57,10 +57,11 @@ namespace ImGui
 		const auto hovered = GetFocusID() == GetCurrentWindow()->GetID(label);
 		if (hovered) {
 			PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
+			PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
 		}
 		TextUnformatted(label);
 		if (hovered) {
-			PopStyleColor();
+			PopStyleColor(2);
 		}
 
 		SameLine();

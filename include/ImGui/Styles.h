@@ -46,7 +46,8 @@ namespace ImGui
 			float  borderSize{ 3.5f };
 
 			ImVec4 text{ 1.0f, 1.0f, 1.0f, 1.0f };
-			ImVec4 textDisabled{ 1.0f, 1.0f, 1.0f, 1.0 };
+			ImVec4 textDisabled{ 1.0f, 1.0f, 1.0f, 1.0f };
+			ImVec4 textShadowDisabled{ 0.0f, 0.0f, 0.0f, 0.0f };
 
 			ImVec4 comboBoxText{ 1.0f, 1.0f, 1.0f, 0.8f };     //  searchbox text
 			ImVec4 comboBoxTextBox{ 0.0f, 0.0f, 0.0f, 1.0f };  // searchbox bg

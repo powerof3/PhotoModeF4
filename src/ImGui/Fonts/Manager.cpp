@@ -17,61 +17,39 @@ namespace Font
 		name = R"(Data\Interface\ImGuiFonts\)" + name;
 
 		const auto resolutionScale = ImGui::Renderer::GetResolutionScale();
-		
-		size = static_cast<float>(a_ini.GetLongValue(a_section, "iSize", 32)) * resolutionScale;
-		largeSize = static_cast<float>(a_ini.GetLongValue(a_section, "iLargeSize", 36)) * resolutionScale;
 
-		iconSize = static_cast<float>(a_ini.GetLongValue("Icons", "iSize", 32)) * resolutionScale;
-		largeIconSize = static_cast<float>(a_ini.GetLongValue("Icons", "iLargeSize", 36)) * resolutionScale;
+		fontSize.first = static_cast<float>(a_ini.GetLongValue(a_section, "iSize", 32)) * resolutionScale;
+		fontSize.second = static_cast<float>(a_ini.GetLongValue(a_section, "iLargeSize", 36)) * resolutionScale;
+
+		iconSize.first = static_cast<float>(a_ini.GetLongValue("Icons", "iSize", 32)) * resolutionScale;
+		iconSize.second = static_cast<float>(a_ini.GetLongValue("Icons", "iLargeSize", 36)) * resolutionScale;
 	}
 
-	void Font::LoadFont(const std::uint32_t* a_data, const std::uint32_t a_dataSize, const ImVector<ImWchar>& a_ranges, bool a_loadIcons)
+	void Font::LoadFont(const std::uint32_t* a_data, const std::uint32_t a_dataSize, bool a_loadIcons)
 	{
+		ImFontConfig config;
+
 		const auto& io = ImGui::GetIO();
-
-		ImFontConfig icon_config;
-		icon_config.MergeMode = true;
-		icon_config.PixelSnapH = true;
-		icon_config.OversampleH = icon_config.OversampleV = 1;
-
-		font = io.Fonts->AddFontFromMemoryCompressedTTF(a_data, a_dataSize, size, nullptr, a_ranges.Data);
+		font = io.Fonts->AddFontFromMemoryCompressedTTF(a_data, a_dataSize, 0.0, &config);
 		if (a_loadIcons) {
-			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, iconSize, &icon_config, a_ranges.Data);
-		}
-
-		ImFontConfig icon_config_large;
-		icon_config_large.MergeMode = true;
-		icon_config_large.PixelSnapH = true;
-		icon_config_large.OversampleH = icon_config_large.OversampleV = 1;
-
-		largeFont = io.Fonts->AddFontFromMemoryCompressedTTF(a_data, a_dataSize, largeSize, nullptr, a_ranges.Data);
-		if (a_loadIcons) {
-			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, largeIconSize, &icon_config, a_ranges.Data);
+			config.MergeMode = true;
+			config.PixelSnapH = true;
+			config.OversampleH = config.OversampleV = 1;
+			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, 0.0f, &config);
 		}
 	}
 
-	void Font::LoadFont(const ImVector<ImWchar>& a_ranges, bool a_loadIcons)
+	void Font::LoadFont(bool a_loadIcons)
 	{
+		ImFontConfig config;
+
 		const auto& io = ImGui::GetIO();
-
-		ImFontConfig icon_config;
-		icon_config.MergeMode = true;
-		icon_config.PixelSnapH = true;
-		icon_config.OversampleH = icon_config.OversampleV = 1;
-
-		font = io.Fonts->AddFontFromFileTTF(name.c_str(), size, nullptr, a_ranges.Data);
+		font = io.Fonts->AddFontFromFileTTF(name.c_str(), 0.0f, &config);
 		if (a_loadIcons) {
-			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, iconSize, &icon_config, a_ranges.Data);
-		}
-
-		ImFontConfig icon_config_large;
-		icon_config_large.MergeMode = true;
-		icon_config_large.PixelSnapH = true;
-		icon_config_large.OversampleH = icon_config_large.OversampleV = 1;
-
-		largeFont = io.Fonts->AddFontFromFileTTF(name.c_str(), largeSize, nullptr, a_ranges.Data);
-		if (a_loadIcons) {
-			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, largeIconSize, &icon_config, a_ranges.Data);
+			config.MergeMode = true;
+			config.PixelSnapH = true;
+			config.OversampleH = config.OversampleV = 1;
+			io.Fonts->AddFontFromFileTTF(R"(Data\Interface\ImGuiFonts\)" FONT_ICON_FILE_NAME_FAS, 0.0f, &config);
 		}
 	}
 
@@ -80,14 +58,9 @@ namespace Font
 		return font;
 	}
 
-	ImFont* Font::GetLargeFont() const
-	{
-		return largeFont;
-	}
-
 	void Manager::LoadSettings()
 	{
-		Settings::GetSingleton()->SerializeFonts([this](auto& ini) {
+		Settings::GetSingleton()->Load(FileType::kFonts, [this](auto& ini) {
 			defaultFont.LoadSettings(ini, "Font");
 			controllerButtonFont.LoadSettings(ini, "ControllerButtonFont");
 		});
@@ -106,19 +79,8 @@ namespace Font
 
 		auto& io = ImGui::GetIO();
 
-		ImVector<ImWchar> ranges;
-
-		ImFontGlyphRangesBuilder builder;
-		builder.AddText(RE::BSScaleformManager::GetSingleton()->validNameChars.c_str());
-		builder.AddChar(0xf083);  // RETRO CAMERA
-		builder.AddChar(0xf017);  // CLOCK
-		builder.AddChar(0xf183);  // PERSON
-		builder.AddChar(0xf042);  // CONTRAST
-		builder.AddChar(0xf03e);  // IMAGE
-		builder.BuildRanges(&ranges);
-
-		defaultFont.LoadFont(ranges, true);
-		controllerButtonFont.LoadFont(ControllerButtons_Data, ControllerButtons_Size, ranges, false);
+		defaultFont.LoadFont(true);
+		controllerButtonFont.LoadFont(ControllerButtons_Data, ControllerButtons_Size, false);
 
 		io.Fonts->Build();
 
@@ -130,9 +92,14 @@ namespace Font
 		loadedFonts = true;
 	}
 
-	ImFont* Manager::GetLargeFont() const
+	std::pair<float, float> Manager::GetDefaultFontSize() const
 	{
-		return defaultFont.GetLargeFont();
+		return defaultFont.fontSize;
+	}
+
+	std::pair<float, float> Manager::GetDefaultIconSize() const
+	{
+		return defaultFont.iconSize;
 	}
 
 	ImFont* Manager::GetControllerButtonFont() const

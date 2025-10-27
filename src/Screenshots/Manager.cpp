@@ -40,13 +40,15 @@ namespace Screenshot
 			photoDirectory = *directory;
 		}
 
-		if (!std::filesystem::exists(photoDirectory)) {
+		std::error_code ec;
+		if (!std::filesystem::exists(photoDirectory, ec)) {
+			logger::info("\tPhoto directory does not exist, creating it... ({})", ec.message());
 			std::filesystem::create_directory(photoDirectory);
 		}
 
 		logger::info("\tScreenshot directory : {}", photoDirectory.string());
 
-		Settings::GetSingleton()->SerializeMCM([this](auto& ini) {
+		Settings::GetSingleton()->Save(FileType::kMCM, [this](auto& ini) {
 			index = ini.GetLongValue("Screenshots", "iScreenshotIndex", index);
 			AssignHighestPossibleIndex();
 			ini.SetLongValue("Screenshots", "iScreenshotIndex", index);
@@ -97,7 +99,7 @@ namespace Screenshot
 	void Manager::IncrementIndex()
 	{
 		index++;
-		Settings::GetSingleton()->SerializeMCM([this](auto& ini) {
+		Settings::GetSingleton()->Save(FileType::kMCM, [this](auto& ini) {
 			ini.SetLongValue("Screenshots", "iScreenshotIndex", index);
 		});
 	}

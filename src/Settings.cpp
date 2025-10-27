@@ -6,29 +6,52 @@
 #include "PhotoMode/Manager.h"
 #include "Screenshots/Manager.h"
 
-void Settings::SerializeINI(const wchar_t* a_path, const std::function<void(CSimpleIniA&)> a_func, bool a_generate)
+void Settings::LoadINI(const wchar_t* a_path, const INIFunc a_func, bool a_generate)
 {
 	CSimpleIniA ini;
 	ini.SetUnicode();
 
-	if (const auto rc = ini.LoadFile(a_path); !a_generate && rc < SI_OK) {
-		return;
+	if (ini.LoadFile(a_path) >= SI_OK || a_generate) {
+		a_func(ini);
+
+		if (a_generate) {
+			(void)ini.SaveFile(a_path);
+		}
 	}
-
-	a_func(ini);
-
-	(void)ini.SaveFile(a_path);
 }
 
-void Settings::SerializeINI(const wchar_t* a_defaultPath, const wchar_t* a_userPath, std::function<void(CSimpleIniA&)> a_func)
+void Settings::LoadINI(const wchar_t* a_defaultPath, const wchar_t* a_userPath, INIFunc a_func)
 {
-	SerializeINI(a_defaultPath, a_func);
-	SerializeINI(a_userPath, a_func);
+	LoadINI(a_defaultPath, a_func);
+	LoadINI(a_userPath, a_func);
 }
 
-void Settings::LoadSettings() const
+void Settings::Load(FileType type, INIFunc a_func, bool a_generate) const
 {
-	LoadMCMSettings();
+	switch (type) {
+	case FileType::kFonts:
+		LoadINI(fontsPath, a_func, a_generate);
+		break;
+	case FileType::kMCM:
+		LoadINI(defaultMCMPath, userMCMPath, a_func);
+		break;
+	default:
+		break;
+	}
+}
+
+void Settings::Save(FileType type, INIFunc a_func, bool a_generate) const
+{
+	switch (type) {
+	case FileType::kFonts:
+		LoadINI(fontsPath, a_func, a_generate);
+		break;
+	case FileType::kMCM:
+		LoadINI(defaultMCMPath, a_func, a_generate);
+		break;
+	default:
+		break;
+	}
 }
 
 void Settings::LoadMCMSettings() const
@@ -38,21 +61,11 @@ void Settings::LoadMCMSettings() const
 
 		MANAGER(Screenshot)->LoadMCMSettings(ini);
 
-		MANAGER(Font)->LoadMCMSettings(ini);  // button scheme
-		MANAGER(Input)->LoadMCMSettings(ini);     // key held duration
+		MANAGER(Font)->LoadMCMSettings(ini);   // button scheme
+		MANAGER(Input)->LoadMCMSettings(ini);  // key held duration
 
 		MANAGER(PhotoMode)->LoadMCMSettings(ini);
 	};
 
-	SerializeINI(defaultMCMPath, userMCMPath, load_mcm);
-}
-
-void Settings::SerializeMCM(std::function<void(CSimpleIniA&)> a_func)
-{
-	SerializeINI(defaultMCMPath, a_func);
-}
-
-void Settings::SerializeFonts(std::function<void(CSimpleIniA&)> a_func) const
-{
-	SerializeINI(fontsPath, a_func, true);
+	Load(FileType::kMCM, load_mcm);
 }

@@ -5,22 +5,17 @@ namespace Font
 	struct Font
 	{
 		void LoadSettings(const CSimpleIniA& a_ini, const char* a_section);
-		
-		void LoadFont(const ImVector<ImWchar>& a_ranges, bool a_loadIcons);
-		void LoadFont(const std::uint32_t* a_data, const std::uint32_t a_dataSize, const ImVector<ImWchar>& a_ranges, bool a_loadIcons);
+
+		void LoadFont(bool a_loadIcons);
+		void LoadFont(const std::uint32_t* a_data, const std::uint32_t a_dataSize, bool a_loadIcons);
 
 		ImFont* GetFont() const;
-		ImFont* GetLargeFont() const;
 
-		std::string name{ "Roboto-Regular.ttf" };
-
-		float size{ 32 };
-		float largeSize{ 36 };
-		float iconSize{ 32 };
-		float largeIconSize{ 36 };
-
-		ImFont* font{ nullptr };
-		ImFont* largeFont{ nullptr };
+		// members
+		std::string             name{ "Roboto-Regular.ttf" };
+		std::pair<float, float> fontSize{ 32.0f, 36.0f };
+		std::pair<float, float> iconSize{ 32.0f, 36.0f };
+		ImFont*                 font{ nullptr };
 	};
 
 	using Button = std::pair<std::string, bool>;
@@ -39,12 +34,12 @@ namespace Font
 
 		void ReloadFonts();
 
-		ImFont* GetLargeFont() const;
-		ImFont* GetControllerButtonFont() const;
+		std::pair<float, float> GetDefaultFontSize() const;
+		std::pair<float, float> GetDefaultIconSize() const;
+		ImFont*                 GetControllerButtonFont() const;
 
-		Button           GetIcon(std::uint32_t key);
-		std::set<Button> GetIcons(const std::set<std::uint32_t>& keys);
-		Button           GetGamePadIcon(const GamePadButton& a_icons) const;
+		Button GetIcon(std::uint32_t key);
+		Button GetGamePadIcon(const GamePadButton& a_icons) const;
 
 	private:
 		enum class BUTTON_SCHEME

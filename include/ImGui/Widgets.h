@@ -46,6 +46,7 @@ namespace ImGui
 		{
 			if (hovered) {
 				PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
+				PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
 			}
 			ArrowButton(label, ImGuiDir_Left);
 			SameLine();
@@ -53,7 +54,7 @@ namespace ImGui
 			SameLine();
 			ArrowButton(label, ImGuiDir_Right);
 			if (hovered) {
-				PopStyleColor();
+				PopStyleColor(2);
 			}
 		}
 		EndGroup();

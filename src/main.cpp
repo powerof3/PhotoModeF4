@@ -80,7 +80,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 
 	logger::info("Game version : {}", a_f4se->RuntimeVersion().string());
 
-	Settings::GetSingleton()->LoadSettings();
+	Settings::GetSingleton()->LoadMCMSettings();
 
 	ImGui::Renderer::Install();
 

@@ -194,7 +194,7 @@ namespace ImGui
 		float spacing = ImGui::GetStyle().ItemSpacing.x;
 		SetCursorPosX(GetCursorPosX() + (MAX_WIDGET_PADDING - spacing));
 
-		PushFont(MANAGER(Font)->GetLargeFont());
+		PushFont(NULL, MANAGER(Font)->GetDefaultFontSize().second);
 
 		auto toggleText = *a_toggle ? TRANSLATE("$ON") : TRANSLATE("$OFF");
 		AlignForWidth(CalcTextSize(toggleText).x + spacing);
@@ -206,10 +206,11 @@ namespace ImGui
 			SameLine();
 			if (hovered) {
 				PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
+				PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
 			}
 			TextUnformatted(toggleText);
 			if (hovered) {
-				PopStyleColor();
+				PopStyleColor(2);
 			}
 		}
 		EndGroup();
@@ -261,10 +262,11 @@ namespace ImGui
 
 		if (isHovered) {
 			PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
+			PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
 		}
 		TextUnformatted(value_buf, value_buf_end);
 		if (isHovered) {
-			PopStyleColor();
+			PopStyleColor(2);
 		}
 
 		SameLine(0, style.ItemInnerSpacing.x);
@@ -377,16 +379,18 @@ namespace ImGui
 
 	bool BeginTabItemEx(const char* label, ImGuiID* active_tab, bool* p_open = nullptr, ImGuiTabItemFlags flags = 0)
 	{
-		ImGuiID id = ImGui::GetID(label);
+		ImGuiID id = GetID(label);
 		bool    wasActive = *active_tab == id;
 
-		if (wasActive)
-			ImGui::PushStyleColor(ImGuiCol_Text, GetStyleColorVec4(ImGuiCol_TextDisabled));
+		if (wasActive) {
+			PushStyleColor(ImGuiCol_Text, GetStyleColorVec4(ImGuiCol_TextDisabled));
+			PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
+		}
 
-		const bool isActive = ImGui::BeginTabItem(label, p_open, flags);
+		const bool isActive = BeginTabItem(label, p_open, flags);
 
 		if (wasActive)
-			ImGui::PopStyleColor();
+			PopStyleColor(2);
 
 		if (isActive)
 			*active_tab = id;

@@ -33,10 +33,10 @@ namespace ImGui
 		if (SUCCEEDED(hr)) {
 			if (auto renderer = RE::BSGraphics::RendererData::GetSingleton()) {
 				if (a_resizeToScreenRes) {
-					static RE::NiPoint2 screenSize = { static_cast<float>(RE::BSGraphics::State::GetSingleton().backBufferWidth), static_cast<float>(RE::BSGraphics::State::GetSingleton().backBufferHeight) };
-					if (screenSize.y != image->GetMetadata().height && screenSize.x != image->GetMetadata().width) {
+					static std::pair<std::size_t, std::size_t> screenSize = { RE::BSGraphics::State::GetSingleton().backBufferWidth, RE::BSGraphics::State::GetSingleton().backBufferHeight };
+					if (screenSize.second != image->GetMetadata().height && screenSize.first != image->GetMetadata().width) {
 						DirectX::ScratchImage tmpImage;
-						DirectX::Resize(*image->GetImage(0, 0, 0), screenSize.x, screenSize.y, DirectX::TEX_FILTER_CUBIC, tmpImage);
+						DirectX::Resize(*image->GetImage(0, 0, 0), screenSize.first, screenSize.second, DirectX::TEX_FILTER_CUBIC, tmpImage);
 
 						image.reset();  // is this needed
 						image = std::make_shared<DirectX::ScratchImage>(std::move(tmpImage));

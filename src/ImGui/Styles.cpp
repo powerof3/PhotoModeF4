@@ -120,6 +120,7 @@ namespace ImGui
 
 		colors[ImGuiCol_Text] = hudColor;
 		colors[ImGuiCol_TextDisabled] = hudSelectedColor;
+		colors[ImGuiCol_TextShadowDisabled] = user.textShadowDisabled;
 
 		colors[ImGuiCol_FrameBg] = ImVec4(0.0, 0.0, 0.0, 0.0);
 		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.0, 0.0, 0.0, 0.0);

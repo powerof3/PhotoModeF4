@@ -335,22 +335,23 @@ namespace PhotoMode
 
 		ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration);
 		{
-			if (ShouldBlockInput()) {
-				ImGui::BeginDisabled(true);
-			}
+			ImGui::BeginDisabled(ShouldBlockInput());
+			{
+				ImGui::PushFont(NULL, MANAGER(Font)->GetDefaultFontSize().first);
+				{
+					// render hierachy
+					overlaysTab.DrawOverlays();
 
-			// render hierachy
-			overlaysTab.DrawOverlays();
+					if (!IsHidden()) {
+						CameraGrid::Draw();
+						DrawBar();
+						DrawControls();
+					}
+				}
+				ImGui::PopFont();
 
-			if (!IsHidden()) {
-				CameraGrid::Draw();
-				DrawBar();
-				DrawControls();
 			}
-
-			if (ShouldBlockInput()) {
-				ImGui::EndDisabled();
-			}
+			ImGui::EndDisabled();
 
 			if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::IsKeyReleased(ImGuiKey_GamepadFaceRight)) {
 				if (IsHidden() || noItemsFocused && !ImGui::GetIO().WantTextInput && !ShouldBlockInput()) {
@@ -373,7 +374,7 @@ namespace PhotoMode
 		const static auto third_height = size.y / 3;
 
 		ImGui::SetNextWindowPos(ImVec2(center.x + third_width, center.y + third_height * 0.8f), ImGuiCond_Always, ImVec2(0.5, 0.5));
-		ImGui::SetNextWindowSize(ImVec2(size.x / 3.3f, size.y / 3.15f));
+		ImGui::SetNextWindowSize(ImVec2(size.x / 3.25f, size.y / 3.125f));
 
 		constexpr auto windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoDecoration;
 
@@ -405,15 +406,21 @@ namespace PhotoMode
 				drawList->ChannelsSplit(2);
 				auto selectedBG = ImGui::GetUserStyleColorU32(ImGui::USER_STYLE::kSelectedBG);
 
-				ImGui::PushFont(MANAGER(Font)->GetLargeFont());
+				auto [defaultSize, largeSize] = MANAGER(Font)->GetDefaultFontSize();
+				auto [defaultIconSize, largeIconSize] = MANAGER(Font)->GetDefaultIconSize();
+
+				ImGui::PushFont(NULL, largeSize);
 				for (std::int32_t i = 0; i < tabs.size(); ++i) {
 					drawList->ChannelsSetCurrent(1);
 					if (currentTab == i) {
-						ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+						ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+						ImGui::PushStyleColor(ImGuiCol_TextShadow, ImGui::GetColorU32(ImGuiCol_TextShadowDisabled));
 					}
+					ImGui::PushFont(NULL, currentTab == i ? largeIconSize : defaultIconSize);
 					ImGui::Button(tabIcons[i], ImVec2(tabWidth, ImGui::GetFrameHeightWithSpacing()));
+					ImGui::PopFont();
 					if (currentTab == i) {
-						ImGui::PopStyleColor();
+						ImGui::PopStyleColor(2);
 						drawList->ChannelsSetCurrent(0);
 						ImGui::SelectableColorRect(selectedBG);
 					}
@@ -520,10 +527,9 @@ namespace PhotoMode
 	{
 		const static auto center = ImGui::GetNativeViewportCenter();
 		const static auto size = ImGui::GetNativeViewportSize();
+		const static auto offsetY = size.y / 25.0f;
 
-		const static auto offset = size.y / 20.0f;
-
-		ImGui::SetNextWindowPos(ImVec2(center.x, size.y - offset), ImGuiCond_Always, ImVec2(0.5, 0.5));
+		ImGui::SetNextWindowPos(ImVec2(center.x, size.y - offsetY), ImGuiCond_Always, ImVec2(0.5, 0.5));
 
 		ImGui::Begin("##Bar", nullptr, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);  // same offset as control window
 		{
