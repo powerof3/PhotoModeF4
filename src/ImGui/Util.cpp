@@ -53,8 +53,8 @@ namespace ImGui
 		const auto windowSize = ImGui::GetWindowSize();
 	
 		AlignTextToFramePadding();
-		
-		const auto hovered = GetFocusID() == GetCurrentWindow()->GetID(label);
+
+		const auto hovered = IsWidgetFocused(label);
 		if (hovered) {
 			PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));
 			PushStyleColor(ImGuiCol_TextShadow, GetColorU32(ImGuiCol_TextShadowDisabled));
@@ -67,6 +67,22 @@ namespace ImGui
 		SameLine();
 		SetCursorPosX(windowSize.x * 0.5f);
 		SetNextItemWidth(-FLT_MIN);
+	}
+
+	bool IsWidgetFocused()
+	{
+		return IsWidgetFocused(GetItemID());
+	}
+
+	bool IsWidgetFocused(std::string_view label)
+	{
+		const auto id = GetCurrentWindow()->GetID(label.data());
+		return IsWidgetFocused(id);
+	}
+
+	bool IsWidgetFocused(ImGuiID id)
+	{
+		return GetFocusID() == id;
 	}
 
 	bool ActivateOnHover()

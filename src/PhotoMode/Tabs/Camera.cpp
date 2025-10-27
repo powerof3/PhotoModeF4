@@ -107,10 +107,6 @@ namespace PhotoMode
 			return hovered;
 		});
 
-		ImGui::DisplayWidgetsGroups([&] {
-			return ImGui::CheckBox("$PM_DepthOfField"_T, &enableDOF).second;
-		});
-
 		if (fFreeCameraTranslationSpeed) {
 			ImGui::DisplayWidgetsGroups([&] {
 				currentTranslateSpeed = fFreeCameraTranslationSpeed->GetFloat();
@@ -125,6 +121,9 @@ namespace PhotoMode
 		}
 
 		if (dofInstance) {
+			ImGui::DisplayWidgetsGroups([&] {
+				return ImGui::CheckBox("$PM_DepthOfField"_T, &enableDOF).second;
+			});			
 			if (!enableDOF) {
 				ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().DisabledAlpha);
 			}

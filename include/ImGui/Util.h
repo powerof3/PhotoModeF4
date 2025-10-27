@@ -14,6 +14,10 @@ namespace ImGui
 
 	void LeftAlignedText(const char* label);
 
+	bool IsWidgetFocused();
+	bool IsWidgetFocused(std::string_view label);
+	bool IsWidgetFocused(ImGuiID id);
+
 	bool ActivateOnHover();
 	void UnfocusOnEscape();
 

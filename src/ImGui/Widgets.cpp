@@ -203,10 +203,10 @@ namespace ImGui
 		auto toggleText = *a_toggle ? TRANSLATE("$ON") : TRANSLATE("$OFF");
 		AlignForWidth(CalcTextSize(toggleText).x + spacing);
 
-		const auto hovered = GetFocusID() == GetCurrentWindow()->GetID(label);
+		const auto hovered = IsWidgetFocused(label);
 		BeginGroup();
 		{
-			InvisibleButton(label, ImVec2(0.1f, 0.1f));
+			InvisibleButton(label, ImVec2(0.1f, 0.1f), ImGuiButtonFlags_EnableNav);
 			SameLine();
 			if (hovered) {
 				PushStyleColor(ImGuiCol_Text, GetColorU32(ImGuiCol_TextDisabled));

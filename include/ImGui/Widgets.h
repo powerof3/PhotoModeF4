@@ -41,7 +41,7 @@ namespace ImGui
 
 		AlignForWidth(frameHeight + CalcTextSize(text.c_str()).x + frameHeight);
 
-		const auto hovered = GetFocusID() == GetCurrentWindow()->GetID(label);
+		const auto hovered = IsWidgetFocused(label);
 		BeginGroup();
 		{
 			if (hovered) {
