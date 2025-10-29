@@ -11,6 +11,12 @@ namespace Input
 		return inputDevice;
 	}
 
+	void Manager::ResetInputDevices()
+	{
+		inputDevice = DEVICE::kNone;
+		lastInputDevice = DEVICE::kNone;
+	}
+
 	void Manager::Register()
 	{
 		RE::MenuControls::GetSingleton()->handlers.emplace_back(GetSingleton());
@@ -48,21 +54,19 @@ namespace Input
 		}
 	}
 
-	bool Manager::SetInputDevice(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey)
+	bool Manager::SetInputDevice(RE::INPUT_DEVICE a_device)
 	{
+		lastInputDevice = inputDevice;
+
 		// get input type
 		switch (a_device) {
 		case RE::INPUT_DEVICE::kKeyboard:
 			inputDevice = DEVICE::kKeyboard;
 			break;
 		case RE::INPUT_DEVICE::kMouse:
-			{
-				inputDevice = DEVICE::kMouse;
-				a_hotkey += F4SE::InputMap::kMacro_MouseButtonOffset;
-			}
+			inputDevice = DEVICE::kMouse;
 			break;
 		case RE::INPUT_DEVICE::kGamepad:
-			a_hotkey = F4SE::InputMap::GamepadMaskToKeycode(a_hotkey);
 			if (RE::ControlMap::GetSingleton()->pcGamePadMapType == RE::PC_GAMEPAD_TYPE::kOrbis) {
 				inputDevice = DEVICE::kGamepadOrbis;
 			} else {
@@ -71,6 +75,20 @@ namespace Input
 			break;
 		default:
 			return false;
+		}
+
+		if (lastInputDevice == DEVICE::kNone || inputDevice == DEVICE::kNone || lastInputDevice != inputDevice) {
+			auto& io = ImGui::GetIO();
+
+			io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+			io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
+
+			if (inputDevice == DEVICE::kKeyboard || inputDevice == DEVICE::kMouse) {
+				io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+			} else {
+				io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+				io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen;  // unused flag to force ImGui to update gamepad input from backend
+			}
 		}
 
 		return true;
@@ -488,16 +506,12 @@ namespace Input
 
 	void Manager::OnThumbstickEvent(const RE::ThumbstickEvent*)
 	{
-		if (RE::ControlMap::GetSingleton()->pcGamePadMapType == RE::PC_GAMEPAD_TYPE::kOrbis) {
-			inputDevice = DEVICE::kGamepadOrbis;
-		} else {
-			inputDevice = DEVICE::kGamepadDirectX;
-		}
+		SetInputDevice(RE::INPUT_DEVICE::kGamepad);
 	}
 
 	void Manager::OnMouseMoveEvent(const RE::MouseMoveEvent*)
 	{
-		inputDevice = DEVICE::kMouse;
+		SetInputDevice(RE::INPUT_DEVICE::kMouse);
 	}
 
 	void Manager::OnCharacterEvent(const RE::CharacterEvent* a_event)
@@ -507,11 +521,16 @@ namespace Input
 
 	void Manager::OnButtonEvent(const RE::ButtonEvent* a_event)
 	{
-		const auto key = a_event->QIDCode();
 		const auto device = a_event->device.get();
+
+		if (!SetInputDevice(device)) {
+			return;
+		}
+
+		const auto key = a_event->QIDCode();
 		auto       hotKey = key;
 
-		if (!SetInputDevice(device, hotKey)) {
+		if (!GetHotKey(device, hotKey)) {
 			return;
 		}
 

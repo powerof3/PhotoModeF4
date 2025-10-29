@@ -194,6 +194,8 @@ namespace PhotoMode
 
 		updateKeyboardFocus = false;
 
+		MANAGER(Input)->ResetInputDevices();
+
 		activated = false;
 		if (activeGlobal) {
 			activeGlobal->value = 0.0f;

@@ -4,6 +4,7 @@ namespace Input
 {
 	enum class DEVICE
 	{
+		kNone,
 		kKeyboard,
 		kMouse,
 		kGamepadDirectX,  // xbox
@@ -19,6 +20,7 @@ namespace Input
 		void        LoadMCMSettings(const CSimpleIniA& a_ini);
 
 		DEVICE GetInputDevice() const;
+		void   ResetInputDevices();
 
 		void HideMenu(bool a_hide);
 		bool IsScreenshotQueued() const;
@@ -26,7 +28,7 @@ namespace Input
 		void OnScreenshotFinish();
 
 	private:
-		bool SetInputDevice(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey);
+		bool SetInputDevice(RE::INPUT_DEVICE a_device);
 		bool GetHotKey(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey);
 
 		static ImGuiKey                  ToImGuiKey(RE::BS_BUTTON_CODE a_key);
@@ -43,12 +45,10 @@ namespace Input
 		void OnButtonEvent(const RE::ButtonEvent* a_event) override;          // 08
 
 		// members
-		bool screenshotQueued{ false };
-		bool menuHidden{ false };
-
-		float keyHeldDuration{ 0.5 };
-
-		RE::INPUT_DEVICE gameDevice;
-		DEVICE           inputDevice{ DEVICE::kKeyboard };
+		DEVICE           inputDevice{ DEVICE::kNone };
+		DEVICE           lastInputDevice{ DEVICE::kNone };
+		bool             screenshotQueued{ false };
+		bool             menuHidden{ false };
+		float            keyHeldDuration{ 0.5 };
 	};
 }
