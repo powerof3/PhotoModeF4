@@ -26,15 +26,21 @@ namespace Input
 		void OnScreenshotFinish();
 
 	private:
-		static ImGuiKey ToImGuiKey(RE::BS_BUTTON_CODE a_key);
-		static ImGuiKey ToImGuiKey_DirectX(RE::BS_BUTTON_CODE a_key);
-		static ImGuiKey ToImGuiKey_Orbis(RE::BS_BUTTON_CODE a_key);
+		bool SetInputDevice(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey);
+		bool GetHotKey(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey);
 
-		void SendKeyEvent(RE::BS_BUTTON_CODE a_key, bool a_keyPressed) const;
+		static ImGuiKey                  ToImGuiKey(RE::BS_BUTTON_CODE a_key);
+		static ImGuiKey                  ToImGuiKey_Mouse(RE::BS_BUTTON_CODE a_key);
+		static std::pair<ImGuiKey, bool> ToImGuiKey_DirectX(RE::BS_BUTTON_CODE a_key);
+		static std::pair<ImGuiKey, bool> ToImGuiKey_Orbis(RE::BS_BUTTON_CODE a_key);
 
-		virtual bool ShouldHandleEvent(const RE::InputEvent*);             // 01
-		virtual void OnCharacterEvent(const RE::CharacterEvent* a_event);  // 07
-		virtual void OnButtonEvent(const RE::ButtonEvent* a_event);        // 08
+		void SendKeyEvent(RE::BS_BUTTON_CODE a_key, float a_value, bool a_keyPressed) const;
+
+		bool ShouldHandleEvent(const RE::InputEvent*) override;               // 01
+		void OnThumbstickEvent(const RE::ThumbstickEvent* a_event) override;  // 04
+		void OnMouseMoveEvent(const RE::MouseMoveEvent* a_event) override;    // 06
+		void OnCharacterEvent(const RE::CharacterEvent* a_event) override;    // 07
+		void OnButtonEvent(const RE::ButtonEvent* a_event) override;          // 08
 
 		// members
 		bool screenshotQueued{ false };

@@ -29,6 +29,7 @@ namespace PhotoMode
 		void ActivateFromPauseMenu();
 
 		void Revert(bool a_deactivate = false);
+		void QuitOnEscape();
 
 		bool GetResetAll() const;
 		void DoResetAll();

@@ -157,13 +157,13 @@ ImVec2 ImGui::ButtonIcon(std::uint32_t a_key)
 
 ImVec2 ImGui::ButtonIcon(const std::string& a_key, bool a_useControllerFont, bool a_centerIcon)
 {
+	if (a_useControllerFont) {
+		ImGui::PushFont(MANAGER(Font)->GetControllerButtonFont());
+	}
 	auto size = ImGui::CalcTextSize(a_key.c_str());
 	if (a_centerIcon) {
 		const float height = ImGui::GetWindowSize().y;
 		ImGui::SetCursorPosY((height - size.y) / 2);
-	}
-	if (a_useControllerFont) {
-		ImGui::PushFont(MANAGER(Font)->GetControllerButtonFont());
 	}
 	ImGui::TextUnformatted(a_key.c_str());
 	if (a_useControllerFont) {

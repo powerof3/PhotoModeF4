@@ -2,6 +2,7 @@ set(SOURCES
 	include/Console.h
 	include/Graphics.h
 	include/Hooks.h
+	include/ImGui/Backend/imgui_impl_win32.h
 	include/ImGui/Fonts/BGSFonts.h
 	include/ImGui/Fonts/IconsFontAwesome6.h
 	include/ImGui/Fonts/Manager.h
@@ -27,6 +28,7 @@ set(SOURCES
 	src/Console.cpp
 	src/Graphics.cpp
 	src/Hooks.cpp
+	src/ImGui/Backend/imgui_impl_win32.cpp
 	src/ImGui/Fonts/Manager.cpp
 	src/ImGui/Graphics.cpp
 	src/ImGui/Renderer.cpp

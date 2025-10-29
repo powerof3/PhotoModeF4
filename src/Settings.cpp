@@ -57,7 +57,7 @@ void Settings::Save(FileType type, INIFunc a_func, bool a_generate) const
 void Settings::LoadMCMSettings() const
 {
 	constexpr auto load_mcm = [](auto& ini) {
-		MANAGER(Hotkeys)->LoadHotKeys(ini);
+		//MANAGER(Hotkeys)->LoadHotKeys(ini);
 
 		MANAGER(Screenshot)->LoadMCMSettings(ini);
 

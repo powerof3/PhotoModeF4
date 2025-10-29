@@ -287,6 +287,14 @@ namespace PhotoMode
 		}
 	}
 
+	void Manager::QuitOnEscape()
+	{
+		if (IsHidden() || noItemsFocused) {
+			Deactivate();
+			RE::UIUtils::PlayMenuSound("UIMenuCancel");
+		}
+	}
+
 	bool Manager::GetResetAll() const
 	{
 		return resetAll;
@@ -361,13 +369,6 @@ namespace PhotoMode
 
 			if (shouldBlockInput) {
 				ImGui::PopStyleVar(ImGuiStyleVar_DisabledAlpha);
-			}
-
-			if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::IsKeyReleased(ImGuiKey_GamepadFaceRight)) {
-				if (IsHidden() || noItemsFocused && !ImGui::GetIO().WantTextInput && !shouldBlockInput) {
-					Deactivate();
-					RE::UIUtils::PlayMenuSound("UIMenuCancel");
-				}
 			}
 		}
 		ImGui::End();

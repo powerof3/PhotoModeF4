@@ -48,6 +48,52 @@ namespace Input
 		}
 	}
 
+	bool Manager::SetInputDevice(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey)
+	{
+		// get input type
+		switch (a_device) {
+		case RE::INPUT_DEVICE::kKeyboard:
+			inputDevice = DEVICE::kKeyboard;
+			break;
+		case RE::INPUT_DEVICE::kMouse:
+			{
+				inputDevice = DEVICE::kMouse;
+				a_hotkey += F4SE::InputMap::kMacro_MouseButtonOffset;
+			}
+			break;
+		case RE::INPUT_DEVICE::kGamepad:
+			a_hotkey = F4SE::InputMap::GamepadMaskToKeycode(a_hotkey);
+			if (RE::ControlMap::GetSingleton()->pcGamePadMapType == RE::PC_GAMEPAD_TYPE::kOrbis) {
+				inputDevice = DEVICE::kGamepadOrbis;
+			} else {
+				inputDevice = DEVICE::kGamepadDirectX;
+			}
+			break;
+		default:
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Manager::GetHotKey(RE::INPUT_DEVICE a_device, std::uint32_t& a_hotkey)
+	{
+		switch (a_device) {
+		case RE::INPUT_DEVICE::kKeyboard:
+			break;
+		case RE::INPUT_DEVICE::kMouse:
+			a_hotkey += F4SE::InputMap::kMacro_MouseButtonOffset;
+			break;
+		case RE::INPUT_DEVICE::kGamepad:
+			a_hotkey = F4SE::InputMap::GamepadMaskToKeycode(a_hotkey);
+			break;
+		default:
+			return false;
+		}
+
+		return true;
+	}
+
 	ImGuiKey Manager::ToImGuiKey(RE::BS_BUTTON_CODE a_key)
 	{
 		switch (a_key) {
@@ -264,110 +310,156 @@ namespace Input
 		}
 	}
 
-	ImGuiKey Manager::ToImGuiKey_DirectX(RE::BS_BUTTON_CODE a_key)
+	ImGuiKey Manager::ToImGuiKey_Mouse(RE::BS_BUTTON_CODE a_key)
+	{
+		switch (a_key) {
+		case RE::BS_BUTTON_CODE::kLeftButton:
+			return ImGuiKey_MouseLeft;
+		case RE::BS_BUTTON_CODE::kRightButton:
+			return ImGuiKey_MouseRight;
+		case RE::BS_BUTTON_CODE::kMiddleButton:
+			return ImGuiKey_MouseMiddle;
+		case RE::BS_BUTTON_CODE::kMouseButton4:
+			return ImGuiKey_MouseX1;
+		case RE::BS_BUTTON_CODE::kMouseButton5:
+			return ImGuiKey_MouseX2;
+		default:
+			return ImGuiKey_None;
+		}
+	}
+
+	std::pair<ImGuiKey, bool> Manager::ToImGuiKey_DirectX(RE::BS_BUTTON_CODE a_key)
 	{
 		switch (a_key) {
 		case RE::BS_BUTTON_CODE::kDPAD_Up:
-			return ImGuiKey_GamepadDpadUp;
+			return { ImGuiKey_GamepadDpadUp, false };
 		case RE::BS_BUTTON_CODE::kDPAD_Down:
-			return ImGuiKey_GamepadDpadDown;
+			return { ImGuiKey_GamepadDpadDown, false };
 		case RE::BS_BUTTON_CODE::kDPAD_Left:
-			return ImGuiKey_GamepadDpadLeft;
+			return { ImGuiKey_GamepadDpadLeft, false };
 		case RE::BS_BUTTON_CODE::kDPAD_Right:
-			return ImGuiKey_GamepadDpadRight;
+			return { ImGuiKey_GamepadDpadRight, false };
 		case RE::BS_BUTTON_CODE::kStart:
-			return ImGuiKey_GamepadStart;
+			return { ImGuiKey_GamepadStart, false };
 		case RE::BS_BUTTON_CODE::kBack:
-			return ImGuiKey_GamepadBack;
+			return { ImGuiKey_GamepadBack, false };
 		case RE::BS_BUTTON_CODE::kLStick:
-			return ImGuiKey_GamepadL3;
+			return { ImGuiKey_GamepadL3, false };
 		case RE::BS_BUTTON_CODE::kRStick:
-			return ImGuiKey_GamepadR3;
+			return { ImGuiKey_GamepadR3, false };
 		case RE::BS_BUTTON_CODE::kLShoulder:
-			return ImGuiKey_GamepadL1;
+			return { ImGuiKey_GamepadL1, false };
 		case RE::BS_BUTTON_CODE::kRShoulder:
-			return ImGuiKey_GamepadR1;
+			return { ImGuiKey_GamepadR1, false };
 		case RE::BS_BUTTON_CODE::kAButton:
-			return ImGuiKey_GamepadFaceDown;
+			return { ImGuiKey_GamepadFaceDown, false };
 		case RE::BS_BUTTON_CODE::kBButton:
-			return ImGuiKey_GamepadFaceRight;
+			return { ImGuiKey_GamepadFaceRight, false };
 		case RE::BS_BUTTON_CODE::kXButton:
-			return ImGuiKey_GamepadFaceLeft;
+			return { ImGuiKey_GamepadFaceLeft, false };
 		case RE::BS_BUTTON_CODE::kYButton:
-			return ImGuiKey_GamepadFaceUp;
+			return { ImGuiKey_GamepadFaceUp, false };
+		case RE::BS_BUTTON_CODE::kRTrigger:
+			return { ImGuiKey_GamepadR2, true };
+		case RE::BS_BUTTON_CODE::kLTrigger:
+			return { ImGuiKey_GamepadL2, true };
 		default:
-			return ImGuiKey_None;
+			return { ImGuiKey_None, false };
 		}
 	}
 
 	// faking this with keyboard inputs, since ImGUI doesn't support DirectInput
-	ImGuiKey Manager::ToImGuiKey_Orbis(RE::BS_BUTTON_CODE a_key)
+	std::pair<ImGuiKey, bool> Manager::ToImGuiKey_Orbis(RE::BS_BUTTON_CODE a_key)
 	{
 		switch (a_key) {
 		// Move / Tweak / Resize Window (in Windowing mode)
 		case RE::BS_BUTTON_CODE::kDPAD_Up:
-			return ImGuiKey_UpArrow;
+			return { ImGuiKey_UpArrow, false };
 		// Move / Tweak / Resize Window (in Windowing mode)
 		case RE::BS_BUTTON_CODE::kDPAD_Down:
-			return ImGuiKey_DownArrow;
+			return { ImGuiKey_DownArrow, false };
 		// Move / Tweak / Resize Window (in Windowing mode)
 		case RE::BS_BUTTON_CODE::kDPAD_Left:
-			return ImGuiKey_LeftArrow;
+			return { ImGuiKey_LeftArrow, false };
 		// Move / Tweak / Resize Window (in Windowing mode)
 		case RE::BS_BUTTON_CODE::kDPAD_Right:
-			return ImGuiKey_RightArrow;
+			return { ImGuiKey_RightArrow, false };
 
 		case RE::BS_BUTTON_CODE::kStart:
-			return ImGuiKey_GamepadStart;
+			return { ImGuiKey_GamepadStart, false };
 		case RE::BS_BUTTON_CODE::kBack:
-			return ImGuiKey_GamepadBack;
+			return { ImGuiKey_GamepadBack, false };
 		case RE::BS_BUTTON_CODE::kLStick:
-			return ImGuiKey_GamepadL3;
+			return { ImGuiKey_GamepadL3, false };
 		case RE::BS_BUTTON_CODE::kRStick:
-			return ImGuiKey_GamepadR3;
-
-		// Tweak Slower / Focus Previous (in Windowing mode)
+			return { ImGuiKey_GamepadR3, false };
 		case RE::BS_BUTTON_CODE::kLTrigger:
-			return ImGuiKey_NavKeyboardTweakSlow;
-		// Tweak Faster / Focus Next (in Windowing mode)
+			return { ImGuiKey_GamepadL2, true };
 		case RE::BS_BUTTON_CODE::kRTrigger:
-			return ImGuiKey_NavKeyboardTweakFast;
+			return { ImGuiKey_GamepadR2, true };
+
 		// Activate / Open / Toggle / Tweak
 		case RE::BS_BUTTON_CODE::kAButton:
-			return ImGuiKey_Enter;
+			return { ImGuiKey_Enter, false };
 		// Cancel / Close / Exit
 		case RE::BS_BUTTON_CODE::kBButton:
-			return ImGuiKey_Escape;
+			return { ImGuiKey_Escape, false };
 
 		case RE::BS_BUTTON_CODE::kXButton:
-			return ImGuiKey_GamepadFaceLeft;
+			return { ImGuiKey_GamepadFaceLeft, false };
 		case RE::BS_BUTTON_CODE::kYButton:
-			return ImGuiKey_GamepadFaceUp;
+			return { ImGuiKey_GamepadFaceUp, false };
 		default:
-			return ImGuiKey_None;
+			return { ImGuiKey_None, false };
 		}
 	}
 
-	void Manager::SendKeyEvent(RE::BS_BUTTON_CODE a_key, bool a_keyPressed) const
+	void Manager::SendKeyEvent(RE::BS_BUTTON_CODE a_key, float a_value, bool a_keyPressed) const
 	{
 		auto& io = ImGui::GetIO();
 
-		ImGuiKey key{ ImGuiKey_None };
-		switch (inputDevice) {
-		case DEVICE::kKeyboard:
-			key = ToImGuiKey(a_key);
-			break;
-		case DEVICE::kGamepadDirectX:
-			key = ToImGuiKey_DirectX(a_key);
-			break;
-		case DEVICE::kGamepadOrbis:
-			key = ToImGuiKey_Orbis(a_key);
-			break;
-		default:
-			break;
-		}
+		if (inputDevice == DEVICE::kMouse) {
+			switch (a_key) {
+			case RE::BS_BUTTON_CODE::kWheelUp:
+				{
+					io.AddMouseWheelEvent(0, a_value);
+					io.AddKeyEvent(ImGuiKey_UpArrow, a_keyPressed);
+				}
+				break;
+			case RE::BS_BUTTON_CODE::kWheelDown:
+				{
+					io.AddMouseWheelEvent(0, a_value * -1);
+					io.AddKeyEvent(ImGuiKey_DownArrow, a_keyPressed);
+				}
+				break;
+			default:
+				io.AddMouseButtonEvent(ToImGuiKey_Mouse(a_key), a_keyPressed);
+				break;
+			}
+		} else {
+			ImGuiKey key{ ImGuiKey_None };
+			bool     analog{ false };
 
-		io.AddKeyEvent(key, a_keyPressed);
+			switch (inputDevice) {
+			case DEVICE::kKeyboard:
+				key = ToImGuiKey(a_key);
+				break;
+			case DEVICE::kGamepadDirectX:
+				std::tie(key, analog) = ToImGuiKey_DirectX(a_key);
+				break;
+			case DEVICE::kGamepadOrbis:
+				std::tie(key, analog) = ToImGuiKey_Orbis(a_key);
+				break;
+			default:
+				break;
+			}
+
+			if (analog) {
+				io.AddKeyAnalogEvent(key, a_value, a_keyPressed);
+			} else {
+				io.AddKeyEvent(key, a_keyPressed);
+			}
+		}
 	}
 
 	void Manager::HideMenu(bool a_hide)
@@ -394,6 +486,20 @@ namespace Input
 		return false;
 	}
 
+	void Manager::OnThumbstickEvent(const RE::ThumbstickEvent*)
+	{
+		if (RE::ControlMap::GetSingleton()->pcGamePadMapType == RE::PC_GAMEPAD_TYPE::kOrbis) {
+			inputDevice = DEVICE::kGamepadOrbis;
+		} else {
+			inputDevice = DEVICE::kGamepadDirectX;
+		}
+	}
+
+	void Manager::OnMouseMoveEvent(const RE::MouseMoveEvent*)
+	{
+		inputDevice = DEVICE::kMouse;
+	}
+
 	void Manager::OnCharacterEvent(const RE::CharacterEvent* a_event)
 	{
 		ImGui::GetIO().AddInputCharacter(a_event->charCode);
@@ -405,44 +511,29 @@ namespace Input
 		const auto device = a_event->device.get();
 		auto       hotKey = key;
 
-		// get input type
-		switch (device) {
-		case RE::INPUT_DEVICE::kKeyboard:
-			inputDevice = DEVICE::kKeyboard;
-			break;
-		case RE::INPUT_DEVICE::kMouse:
-			{
-				hotKey += F4SE::InputMap::kMacro_MouseButtonOffset;
-				inputDevice = DEVICE::kMouse;
-			}
-			break;
-		case RE::INPUT_DEVICE::kGamepad:
-			{
-				hotKey = F4SE::InputMap::GamepadMaskToKeycode(hotKey);
-				if (RE::ControlMap::GetSingleton()->pcGamePadMapType == RE::PC_GAMEPAD_TYPE::kOrbis) {
-					inputDevice = DEVICE::kGamepadOrbis;
-				} else {
-					inputDevice = DEVICE::kGamepadDirectX;
-				}
-			}
-			break;
-		default:
+		if (!SetInputDevice(device, hotKey)) {
 			return;
 		}
 
-		// recreate vertical pan event for mouse
-		if (inputDevice == DEVICE::kMouse) {
+		// recreate tilt event for mouse/gamepad
+		if (inputDevice == DEVICE::kMouse || inputDevice == DEVICE::kGamepadDirectX || inputDevice == DEVICE::kGamepadOrbis) {
 			if (auto freeCameraState = static_cast<RE::FreeCameraState*>(RE::PlayerCamera::GetSingleton()->currentState.get())) {
-				if (key == 0) {  // LeftButton
-					std::uint16_t value = (value & 0x00ff) | (0 << 8);
-					bool          released = true;
-					if (a_event->value != 0.0 || a_event->heldDownSecs < 0.0) {
-						released = false;
-					}
-					value = (value & 0xff00) | (released == false);
-					freeCameraState->worldZDirection = value;
+				const auto getKey = [this](std::string_view action, RE::INPUT_DEVICE device) {
+					auto key = RE::ControlMap::GetSingleton()->GetMappedKey(action, device, RE::UserEvents::INPUT_CONTEXT_ID::kTFC);
+					GetHotKey(device, key);
+					return key;
+				};
+
+				static auto mouseUp = getKey("WorldZUp", RE::INPUT_DEVICE::kMouse);
+				static auto mouseDown = getKey("WorldZDown", RE::INPUT_DEVICE::kMouse);
+				static auto gamepadUp = getKey("WorldZUp", RE::INPUT_DEVICE::kGamepad);
+				static auto gamepadDown = getKey("WorldZDown", RE::INPUT_DEVICE::kGamepad);
+
+				if (hotKey == mouseUp || hotKey == gamepadUp) {  // LeftButton
+					bool released = !(a_event->value != 0.0 || a_event->heldDownSecs < 0.0);
+					freeCameraState->worldZDirection = static_cast<std::uint16_t>(!released);
 					return;
-				} else if (key == 1) {  // RightButton
+				} else if (hotKey == mouseDown || hotKey == gamepadDown) {  // RightButton
 					if (a_event->value == 0.0 && a_event->heldDownSecs >= 0.0) {
 						freeCameraState->worldZDirection = 0;
 					} else {
@@ -458,7 +549,9 @@ namespace Input
 		auto&      io = ImGui::GetIO();
 
 		if (!io.WantTextInput) {
-			if (hotKey == hotKeys->ToggleMenusKey() && a_event->QJustPressed()) {
+			if (hotKey == hotKeys->EscapeKey() && a_event->QReleased()) {
+				photoMode->QuitOnEscape();
+			} else if (hotKey == hotKeys->ToggleMenusKey() && a_event->QJustPressed()) {
 				photoMode->ToggleUI();
 			} else if (hotKey == hotKeys->TakePhotoKey()) {  // only fires for non-prtscreen keys
 				if (a_event->QJustPressed() || MANAGER(Screenshot)->AllowMultiScreenshots() && a_event->QHeldDownSecs() > keyHeldDuration) {
@@ -481,11 +574,11 @@ namespace Input
 			}
 		}
 
-		if (!photoMode->IsHidden() || hotKey == hotKeys->EscapeKey()) {
+		if (!photoMode->IsHidden()) {
 			if (inputDevice == DEVICE::kKeyboard && hotKey == std::to_underlying(RE::BS_BUTTON_CODE::kTab)) {
 				io.AddKeyEvent(ImGuiKey_Tab, a_event->QJustPressed());
 			} else {
-				SendKeyEvent(static_cast<RE::BS_BUTTON_CODE>(key), a_event->QPressed());
+				SendKeyEvent(static_cast<RE::BS_BUTTON_CODE>(key), a_event->QAnalogValue(), a_event->QPressed());
 			}
 		}
 	}

@@ -44,9 +44,9 @@ namespace PhotoMode::Hotkeys
 			std::uint32_t gamePad{ 0 };
 		};
 
-		Key nextTab{ RE::BS_BUTTON_CODE::kE, F4SE::InputMap::kGamepadButtonOffset_RIGHT_SHOULDER };   
-		Key previousTab{ RE::BS_BUTTON_CODE::kQ, F4SE::InputMap::kGamepadButtonOffset_LEFT_SHOULDER };
-		Key takePhoto{ RE::BS_BUTTON_CODE::kSpace, F4SE::InputMap::kGamepadButtonOffset_A };  // 
+		Key nextTab{ RE::BS_BUTTON_CODE::kE, F4SE::InputMap::kGamepadButtonOffset_RT };   
+		Key previousTab{ RE::BS_BUTTON_CODE::kQ, F4SE::InputMap::kGamepadButtonOffset_LT };
+		Key takePhoto{ RE::BS_BUTTON_CODE::kSpace, F4SE::InputMap::kGamepadButtonOffset_BACK };
 		Key toggleMenus{ RE::BS_BUTTON_CODE::kT, F4SE::InputMap::kGamepadButtonOffset_X };
 		Key reset{ RE::BS_BUTTON_CODE::kR, F4SE::InputMap::kGamepadButtonOffset_Y };
 		Key freezeTime{ RE::BS_BUTTON_CODE::kF, F4SE::InputMap::kGamepadButtonOffset_START };

@@ -55,7 +55,7 @@ namespace ImGui::Renderer
 				io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
 				io.IniFilename = nullptr;
 
-				if (!ImGui_ImplWin32_Init(desc.OutputWindow)) {
+				if (!F4SE::ImGui_ImplWin32_Init(desc.OutputWindow)) {
 					logger::error("ImGui initialization failed (Win32)");
 					return;
 				}
@@ -98,7 +98,7 @@ namespace ImGui::Renderer
 				}
 
 				ImGui_ImplDX11_NewFrame();
-				ImGui_ImplWin32_NewFrame();
+				F4SE::ImGui_ImplWin32_NewFrame();
 				ImGui::NewFrame();
 				{
 					// disable windowing
