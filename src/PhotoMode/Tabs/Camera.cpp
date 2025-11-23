@@ -13,7 +13,7 @@ namespace PhotoMode
 	void Camera::OriginalState::Get()
 	{
 		fov = RE::PlayerCamera::GetSingleton()->worldFOV;
-		translateSpeed = RE::INISettingCollection::GetSingleton()->GetSetting("fFreeCameraTranslationSpeed:Camera")->GetFloat();
+		translateSpeed = "fFreeCameraTranslationSpeed:Camera"_ini.value();
 	}
 
 	void Camera::OriginalState::Revert([[maybe_unused]] bool a_deactivate) const

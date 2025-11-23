@@ -43,7 +43,7 @@ namespace Console
 			it->executeFunction = &detail::Execute;
 			it->conditionFunction = nullptr;
 
-			logger::debug("installed {}", detail::LONG_NAME);
+			logger::info("Installed {}", detail::LONG_NAME);
 		} else {
 			stl::report_and_fail("failed to find function"sv);
 		}

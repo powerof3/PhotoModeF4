@@ -30,8 +30,15 @@ namespace PhotoMode
 			return false;
 		}
 
+		constexpr std::array allowedContexts{
+			RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay,
+			RE::UserEvents::INPUT_CONTEXT_ID::kSitWait,
+			RE::UserEvents::INPUT_CONTEXT_ID::kTFC,
+			RE::UserEvents::INPUT_CONTEXT_ID::kConsole
+		};
+
 		const auto& context_id = controlMap->contextPriorityStack.back();
-		if (!(context_id == RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay || context_id == RE::UserEvents::INPUT_CONTEXT_ID::kTFC || context_id == RE::UserEvents::INPUT_CONTEXT_ID::kConsole)) {
+		if (!std::ranges::contains(allowedContexts, context_id)) {
 			return false;
 		}
 
@@ -109,6 +116,10 @@ namespace PhotoMode
 
 		// toggle HUD elements
 		RE::SendHUDMessage::PushHUDMode(RE::HUDModeType("DialogueCameraMode"));
+		if (RE::UI::GetSingleton()->GetMenuOpen<RE::SitWaitMenu>()) {
+			RE::UIMessageQueue::GetSingleton()->AddMessage("SitWaitMenu", RE::UI_MESSAGE_TYPE::kHide);
+			sitWaitMenuOpen = true;
+		}
 
 		activated = true;
 		if (activeGlobal) {
@@ -181,6 +192,13 @@ namespace PhotoMode
 
 		// restore HUD elements
 		RE::SendHUDMessage::PopHUDMode(RE::HUDModeType("DialogueCameraMode"));
+		if (sitWaitMenuOpen) {
+			auto player = RE::PlayerCharacter::GetSingleton();
+			if (player->currentProcess) {
+				RE::SitWaitMenu::OnEnterFurniture(player->currentProcess->GetOccupiedFurniture());
+			}
+			sitWaitMenuOpen = false;
+		}
 
 		// restore VATS
 		RE::INISettingCollection::GetSingleton()->GetSetting("bVATSDisable:VATS")->SetBinary(true);
@@ -365,7 +383,6 @@ namespace PhotoMode
 					}
 				}
 				ImGui::PopFont();
-
 			}
 			ImGui::EndDisabled();
 
@@ -604,7 +621,7 @@ namespace PhotoMode
 	}
 
 	bool Manager::SetupPauseMenu() const
-	{	
+	{
 		if (auto menu = RE::UI::GetSingleton()->GetMenu<RE::PauseMenu>()) {
 			if (const auto& movie = menu->uiMovie) {
 				RE::Scaleform::GFx::Value entryList;

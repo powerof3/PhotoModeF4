@@ -126,6 +126,8 @@ namespace PhotoMode
 		bool  freezeTimeOnStart{ true };
 		bool  openFromPauseMenu{ true };
 
+		bool sitWaitMenuOpen{ false };
+
 		RE::TESGlobal* activeGlobal{ nullptr };
 	};
 }

@@ -13,7 +13,7 @@ void MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	case F4SE::MessagingInterface::kPostLoad:
 		{
 			logger::info("{:*^30}", "POST LOAD");
-			
+			ImGui::Renderer::Install();
 			Hooks::Install();
 			Console::Install();
 		}
@@ -21,6 +21,8 @@ void MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	case F4SE::MessagingInterface::kGameDataReady:
 		{
 			logger::info("{:*^30}", "DATA LOADED");
+
+			ImGui::Renderer::Init();
 			
 			MANAGER(Input)->Register();
 			MANAGER(PhotoMode)->Register();
@@ -81,8 +83,6 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	logger::info("Game version : {}", a_f4se->RuntimeVersion().string());
 
 	Settings::GetSingleton()->LoadMCMSettings();
-
-	ImGui::Renderer::Install();
 
 	const auto messaging = F4SE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
