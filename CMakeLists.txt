@@ -33,7 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE 
 
 project(
 	po3_PhotoModeF4
-	VERSION 2.1.0
+	VERSION 2.1.3
 	LANGUAGES CXX
 )
 
