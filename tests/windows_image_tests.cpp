@@ -1,4 +1,7 @@
 #include "Graphics.h"
+#include "ScreenshotFiles.h"
+#include <fstream>
+#include <barrier>
 #include "OverlayImage.h"
 #include <thread>
 #include "FontAssetPath.h"
@@ -20,6 +23,7 @@ int main()
     if (FAILED(initialized)) return 1;
     const auto path = std::filesystem::temp_directory_path() /
         std::format("photomode-image-test-{}.png", GetCurrentProcessId());
+    const auto photos = path.parent_path() / path.stem();
     int result = 0;
     try {
         require(Font::AssetPath("Roboto-Regular.ttf").generic_string() == "Data/Interface/ImGuiFonts/Roboto-Regular.ttf", "default font without fonts.ini");
@@ -62,6 +66,56 @@ int main()
         });
         worker.join();
         require(SUCCEEDED(workerLoad), "overlay decoding on a thread without a pre-existing COM apartment");
+        std::filesystem::create_directory(photos);
+        const auto prefix = photos / "Screenshot";
+        const auto readBytes = [](const std::filesystem::path& file) {
+            std::ifstream stream(file, std::ios::binary);
+            return std::string(std::istreambuf_iterator<char>(stream), {});
+        };
+        std::uint64_t next = 0;
+        std::filesystem::path saved;
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved), "first session photo 0");
+        const auto firstBytes = readBytes(saved);
+        ++next;
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved), "first session photo 1");
+        const auto secondBytes = readBytes(saved);
+        // Simulate a restart with no persisted index/configuration.
+        std::error_code scanError;
+        next = Screenshot::NextFileIndex(prefix, 0, scanError);
+        require(!scanError && next == 2, "restart directory scan without INI");
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved), "second session photo 2");
+        ++next;
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved), "second session photo 3");
+        require(readBytes(photos / "Screenshot0.png") == firstBytes && readBytes(photos / "Screenshot1.png") == secondBytes, "restart overwrote photos");
+        // Force a stale index after a successful scan: CREATE_NEW must still skip.
+        next = 0;
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved) && next == 4, "exclusive collision retry");
+        require(readBytes(photos / "Screenshot0.png") == firstBytes, "collision overwrote photo");
+        std::ofstream(photos / "Screenshot4294967295.png", std::ios::binary) << "legacy photo";
+        next = Screenshot::NextFileIndex(prefix, 0, scanError);
+        require(next == 4294967296ULL, "legacy unsigned -1 filename scan");
+        require(Texture::SaveNewPNG(bgra, prefix, next, saved), "64-bit screenshot save");
+        require(readBytes(photos / "Screenshot4294967295.png") == "legacy photo", "legacy photo overwritten");
+        std::array<bool, 2> writers{};
+        std::array<std::filesystem::path, 2> writerPaths;
+        std::barrier gate(2);
+        const auto writeConcurrent = [&](std::size_t slot) {
+            const auto com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+            std::uint64_t candidate = 0;
+            gate.arrive_and_wait();
+            if (SUCCEEDED(com)) {
+                writers[slot] = Texture::SaveNewPNG(bgra, photos / "Concurrent", candidate, writerPaths[slot]);
+                CoUninitialize();
+            }
+        };
+        std::thread writerA(writeConcurrent, 0), writerB(writeConcurrent, 1);
+        writerA.join(); writerB.join();
+        require(writers[0] && writers[1] && writerPaths[0] != writerPaths[1], "concurrent writers reused a filename");
+        std::ofstream(photos / "Max18446744073709551615.png", std::ios::binary) << "last photo";
+        next = UINT64_MAX;
+        require(!Texture::SaveNewPNG(bgra, photos / "Max", next, saved), "exhaustion wrapped around");
+        require(readBytes(photos / "Max18446744073709551615.png") == "last photo", "exhaustion overwrote photo");
+        std::cout << "Screenshot preservation checks passed: restart without INI, stale index, legacy 4294967295, 64-bit filenames, concurrent writers, exhaustion\n";
         DirectX::ScratchImage decoded, rgba;
         require(SUCCEEDED(DirectX::LoadFromWICFile(path.c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, nullptr, decoded)), "decode PNG");
         require(SUCCEEDED(Texture::ToRGBA8(*decoded.GetImage(0, 0, 0), rgba)), "normalize decoded PNG");
@@ -105,6 +159,7 @@ int main()
     }
     std::error_code ignored;
     std::filesystem::remove(path, ignored);
+    std::filesystem::remove_all(photos, ignored);
     CoUninitialize();
     return result;
 }

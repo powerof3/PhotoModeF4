@@ -66,3 +66,26 @@ vignette intensity, screenshot compositing, and localized pause-menu activation.
 Portable tests cover the exact EFFECTS/VIGNETTE.png layout, nested categories,
 uppercase PNG extensions and missing directories. Windows tests decode a real PNG
 on a fresh worker thread using the overlay COM initialization helper.
+
+## Screenshot filename preservation regression
+
+The tester reported restart overwrites with Screenshot4294967295.png and
+Screenshot0.png. The old signed -1 counter became UINT32_MAX in filenames;
+startup scanning was incorrectly inside an optional INI callback and never ran
+without that file. Initialization now always scans the selected destination,
+parses nonnegative 64-bit suffixes (including legacy UINT32_MAX files), and treats
+persisted settings only as hints. Production PNG output uses CREATE_NEW, retries
+collisions without truncating existing files, and fails instead of wrapping at
+UINT64_MAX. File writes are serialized within the manager. Failed writes mark only
+the newly owned handle for deletion; existing filenames are never deleted.
+
+Portable tests cover negative/overflowed hints, legacy filenames, custom/normal
+prefixes and upper-case extensions. Windows tests save two actual PNGs, reset
+the counter to simulate restart without settings, save two more, and compare the
+original bytes. They also force stale-counter collisions, legacy 4294967295, two
+concurrent writers starting at zero, and UINT64_MAX exhaustion.
+
+In game: back up existing photos, take two shots, exit/restart, take two more in
+both custom and normal-folder modes. Confirm four distinct images and unchanged
+original file hashes. Repeat without PhotoMode INI files and with an existing
+Screenshot4294967295.png; numbering may legitimately continue above that value.

@@ -1,4 +1,5 @@
 #include "ImageMath.h"
+#include "ScreenshotFiles.h"
 #include "OverlayFiles.h"
 #include <fstream>
 #include <chrono>
@@ -22,6 +23,18 @@ int main()
     assert(overlays.at("EFFECTS").front().filename() == "VIGNETTE.png");
     assert(overlays.at("EFFECTS/nested").size() == 1);
     assert(overlays.at("FRAMES").size() == 1 && overlays.at("General").size() == 1);
+    const auto photos = root / "photos";
+    std::filesystem::create_directory(photos);
+    for (const auto& name : {"Screenshot0.png", "Screenshot4294967295.png", "Screenshot2.PNG", "Screenshot-1.png", "Screenshotx.png", "Game_7.png"}) {
+        std::ofstream(photos / name).put('x');
+    }
+    assert(Screenshot::NextFileIndex(photos / "Screenshot", 0, error) == 4294967296ULL && !error);
+    assert(Screenshot::NextFileIndex(photos / "Game_", 0, error) == 8 && !error);
+    assert(Screenshot::NextFileIndex(photos / "Game_", 100, error) == 100 && !error);
+    assert(!Screenshot::ParseIndex("-1") && !Screenshot::ParseIndex(""));
+    assert(!Screenshot::ParseIndex("18446744073709551616"));
+    std::ofstream(photos / "Max18446744073709551615.png").put('x');
+    assert(Screenshot::NextFileIndex(photos / "Max", 0, error) == UINT64_MAX && !error);
     std::filesystem::remove_all(root);
     assert(PhotoMode::FindOverlayFiles(root, error).empty() && error);
 

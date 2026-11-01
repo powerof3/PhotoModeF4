@@ -70,3 +70,9 @@ folder. For example, vignette must be installed as
 `Data/Interface/PhotoMode/overlays/EFFECTS/VIGNETTE.png`. Keep the newly built DLL
 when copying original assets. The DLL package does not supply these PNG files.
 The plugin logs the overlay directory, successful load count and load failures.
+
+Screenshot filenames are recovered from the selected output directory on every
+startup, independently of optional MCM settings. New PNG files are created
+exclusively, so stale settings or simultaneous captures cannot replace existing
+photos. Legacy Screenshot4294967295.png files are retained and numbering can
+continue above that value using a 64-bit counter.
