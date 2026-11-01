@@ -6,7 +6,8 @@ see [runtime audit](RUNTIME_AUDIT.md) and [test matrix](TESTING.md) before use.
 
 ## Requirements and installation
 
-Install matching F4SE, the Address Library database for 1.11.240, and the mandatory
+Install the current Microsoft Visual C++ 2015–2022 x64 Redistributable, matching
+F4SE, the Address Library database for 1.11.240, and the mandatory
 [ImGui Fonts mod](https://www.nexusmods.com/fallout4/mods/88107). Fonts are loaded
 from `Data/Interface/ImGuiFonts` (default Roboto-Regular.ttf and Font Awesome solid).
 Do not bundle fonts with this plugin. Missing fonts produce a logged fallback,
