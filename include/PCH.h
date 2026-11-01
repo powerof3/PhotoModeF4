@@ -46,7 +46,7 @@ using EventResult = RE::BSEventNotifyControl;
 using namespace std::literals;
 using namespace clib_util;
 using namespace string::literals;
-using namespace RE::literals;
+
 
 template <class T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;

@@ -18,6 +18,8 @@ jobs:
       - uses: xmake-io/github-action-setup-xmake@3a1a5dddfc7fa625d9a698738334bf55655a861a
         with:
           xmake-version: '3.0.3'
+          package-cache: true
+          package-cache-key: 'photomode-windows-x64-md-v1'
           actions-cache-folder: '.xmake-cache'
           actions-cache-key: "windows-msvc-md-${{ hashFiles('.gitmodules', 'xmake.lua') }}"
       - name: Toolchain and dependency identities
