@@ -1,4 +1,5 @@
 #include "Hooks.h"
+#include "CameraMath.h"
 
 #include "Input.h"
 #include "PhotoMode/Hotkeys.h"
@@ -7,14 +8,23 @@
 
 namespace PhotoMode
 {
-	struct FromEulerAnglesZXY
-	{
-		static void thunk(RE::NiMatrix3* a_matrix, float a_z, float a_x, float a_y)
-		{
-			return func(a_matrix, a_z, a_x, MANAGER(PhotoMode)->GetViewRoll(a_y));
-		}
-		static inline REL::Relocation<decltype(thunk)> func;
-	};
+    // Intercept the public camera-state rotation result rather than a call
+    // instruction inside GetRotation. Slot 0x0C is declared in TESCameraState.
+    struct FreeCameraGetRotation
+    {
+        static void thunk(const RE::FreeCameraState* state, RE::NiQuaternion& rotation)
+        {
+            func(state, rotation);
+            if (!MANAGER(PhotoMode)->IsActive()) return;
+            const float roll = MANAGER(PhotoMode)->GetViewRoll(0.0f);
+            if (roll == 0.0f) return;
+            const auto result = CameraMath::ApplyLocalRoll(
+                {rotation.w, rotation.x, rotation.y, rotation.z}, roll);
+            rotation = {result.w, result.x, result.y, result.z};
+        }
+        static inline REL::Relocation<decltype(thunk)> func;
+        static inline constexpr std::size_t idx = 0x0C;
+    };
 
 	struct DOF_IsActive
 	{
@@ -101,8 +111,7 @@ namespace PhotoMode
 
 	void InstallHooks()
 	{
-		REL::Relocation<std::uintptr_t> target{ REL::ID(2248281), 0x1B };  // FreeCameraState::GetRotation
-		stl::write_thunk_call<FromEulerAnglesZXY>(target.address());
+		stl::write_vfunc<RE::FreeCameraState, FreeCameraGetRotation>();
 
 		stl::write_vfunc<RE::ImageSpaceEffectBokehDepthOfField, Bokeh_IsActive>();
 		stl::write_vfunc<RE::ImageSpaceEffectDepthOfField, DOF_IsActive>();
@@ -141,7 +150,7 @@ namespace Screenshot
 
 	void InstallHooks()
 	{
-		REL::Relocation<std::uintptr_t> target{ REL::ID(2228913) };  // Main::Swap ☑
+		REL::Relocation<std::uintptr_t> target{ REL::ID(2228913) };  // Main::Swap; target-runtime offset remains unverified
 		stl::write_thunk_call<TakeScreenshot>(target.address() + 0x2C6);
 	}
 }

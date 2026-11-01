@@ -5,6 +5,7 @@ set_languages("c++23")
 set_encodings("utf-8")
 add_rules("mode.debug", "mode.releasedbg")
 set_policy("package.requires_lock", true)
+set_policy("package.precompiled", false)
 -- This local repository is an immutable git submodule, including transitive recipes.
 add_repositories("photomode-pinned lib/xmake-repo")
 set_runtimes("MD")

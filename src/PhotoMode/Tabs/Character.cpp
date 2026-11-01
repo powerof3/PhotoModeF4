@@ -115,8 +115,8 @@ namespace PhotoMode
 		drawList->ChannelsSplit(2);
 
 		ImGui::DisplayWidgetsGroups([&] {
-			auto name = character->IsPlayerRef() ? "$PM_ShowPlayer"_T : std::format("{} {}", "$PM_ShowCharacter"_T, GetName()).c_str();
-			auto [selected, hovered] = ImGui::CheckBox(name, &currentState.visible);
+			const std::string name = character->IsPlayerRef() ? std::string("$PM_ShowPlayer"_T) : std::format("{} {}", "$PM_ShowCharacter"_T, GetName());
+			auto [selected, hovered] = ImGui::CheckBox(name.c_str(), &currentState.visible);
 			if (selected) {
 				if (const auto root = character->Get3D()) {
 					root->CullGeometry(!currentState.visible);

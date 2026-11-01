@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           submodules: recursive
-      - uses: ilammy/msvc-dev-cmd@460a772e4cf7358f9f2f23773240813e40e7a894
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
         with:
           arch: x64
       - uses: xmake-io/github-action-setup-xmake@3a1a5dddfc7fa625d9a698738334bf55655a861a
@@ -25,6 +25,12 @@ jobs:
           xmake --version
           cl 2>&1 | Out-Host
           git submodule status --recursive
+      - name: Portable regression checks
+        run: |
+          python -m unittest discover -s tests -v
+          cl /nologo /std:c++latest /EHsc /Iinclude tests/math_tests.cpp /Fe:math_tests.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./math_tests.exe
       - name: Configure
         run: xmake f -p windows -a x64 -m releasedbg --toolchain=msvc -y -vD
       - name: Compile and link
@@ -45,7 +51,7 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
-          xmake show -l targets
+          if (Get-Command xmake -ErrorAction SilentlyContinue) { xmake show -l targets }
           Get-ChildItem .xmake -Recurse -Filter '*.log' | ForEach-Object { Get-Content $_.FullName -Tail 150 }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

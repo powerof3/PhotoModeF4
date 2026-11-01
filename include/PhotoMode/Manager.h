@@ -49,6 +49,7 @@ namespace PhotoMode
 		std::pair<ImGui::Texture*, float> GetOverlay() const;
 
 	private:
+        bool originalSavingAllowed{ true };
 		enum TAB_TYPE : std::int32_t
 		{
 			kCamera,

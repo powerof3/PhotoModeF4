@@ -26,7 +26,7 @@ namespace PhotoMode
 	bool Manager::IsValid()
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
-		if (!controlMap) {
+		if (!controlMap || controlMap->contextPriorityStack.empty()) {
 			return false;
 		}
 
@@ -94,8 +94,9 @@ namespace PhotoMode
 			hiddenUI = true;
 		}
 
-		// disable saving
-		RE::BGSSaveLoadManager::GetSingleton()->savingAllowed = false;
+		// Preserve pre-existing restrictions owned by the game or another mod.
+        originalSavingAllowed = RE::BGSSaveLoadManager::GetSingleton()->savingAllowed;
+        RE::BGSSaveLoadManager::GetSingleton()->savingAllowed = false;
 
 		// toggle freecam
 		if (originalcameraState != RE::CameraState::kFree) {
@@ -188,7 +189,7 @@ namespace PhotoMode
 		TogglePlayerControls(true);
 
 		// allow saving
-		RE::BGSSaveLoadManager::GetSingleton()->savingAllowed = true;
+		RE::BGSSaveLoadManager::GetSingleton()->savingAllowed = originalSavingAllowed;
 
 		// restore HUD elements
 		RE::SendHUDMessage::PopHUDMode(RE::HUDModeType("DialogueCameraMode"));
@@ -200,8 +201,7 @@ namespace PhotoMode
 			sitWaitMenuOpen = false;
 		}
 
-		// restore VATS
-		RE::INISettingCollection::GetSingleton()->GetSetting("bVATSDisable:VATS")->SetBinary(true);
+		// VATS INI setting was never changed on entry; leave the game setting intact.
 
 		// reset variables
 		hiddenUI = false;
@@ -289,10 +289,8 @@ namespace PhotoMode
 
 		if (a_deactivate) {
 			// reset UI
-			if ((!menusAlreadyHidden || hiddenUI) && !RE::UI::GetSingleton()->menuSystemVisible) {
-				RE::UI::GetSingleton()->menuSystemVisible = true;
-				RE::Interface3D::Renderer::DisableAll(false);
-			}
+			RE::UI::GetSingleton()->menuSystemVisible = !menusAlreadyHidden;
+            RE::Interface3D::Renderer::DisableAll(menusAlreadyHidden);
 			resetWindow = true;
 			resetPlayerTabs = true;
 		} else {
