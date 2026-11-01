@@ -50,6 +50,8 @@ namespace PhotoMode
 
 	private:
         bool originalSavingAllowed{ true };
+        std::array<bool, 5> originalHandlerStates{};
+        std::array<RE::BSInputEventUser*, 5> originalHandlers{};
 		enum TAB_TYPE : std::int32_t
 		{
 			kCamera,

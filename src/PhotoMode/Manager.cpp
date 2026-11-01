@@ -137,13 +137,23 @@ namespace PhotoMode
 			RE::BSInputEnableManager::GetSingleton()->EnableUserEvent(inputLayer->layerID, controlFlags.get(), a_enable, RE::UserEvents::SENDER_ID::kScript);
 		}
 
-		if (const auto pcControls = RE::PlayerControls::GetSingleton()) {
-			pcControls->sneakHandler->inputEventHandlingEnabled = a_enable;
-			pcControls->jumpHandler->inputEventHandlingEnabled = a_enable;
-			pcControls->attackHandler->inputEventHandlingEnabled = a_enable;
-			pcControls->readyWeaponHandler->inputEventHandlingEnabled = a_enable;
-			pcControls->meleeThrowHandler->inputEventHandlingEnabled = a_enable;
-		}
+        if (!a_enable) originalHandlers.fill(nullptr);
+        if (const auto controls = RE::PlayerControls::GetSingleton()) {
+            const std::array<RE::BSInputEventUser*, 5> handlers{
+                controls->sneakHandler, controls->jumpHandler, controls->attackHandler,
+                controls->readyWeaponHandler, controls->meleeThrowHandler};
+            for (std::size_t i = 0; i < handlers.size(); ++i) {
+                if (!handlers[i]) continue;
+                if (!a_enable) {
+                    originalHandlers[i] = handlers[i];
+                    originalHandlerStates[i] = handlers[i]->inputEventHandlingEnabled;
+                    handlers[i]->inputEventHandlingEnabled = false;
+                } else if (handlers[i] == originalHandlers[i]) {
+                    handlers[i]->inputEventHandlingEnabled = originalHandlerStates[i];
+                }
+            }
+        }
+        if (a_enable) originalHandlers.fill(nullptr);
 	}
 
 	bool Manager::OnFrameUpdate()
@@ -184,8 +194,10 @@ namespace PhotoMode
 		}
 
 		// reset controls
-		allowTextInput = false;
-		RE::ControlMap::GetSingleton()->SetTextEntryMode(false);
+		if (allowTextInput) {
+            RE::ControlMap::GetSingleton()->SetTextEntryMode(false);
+            allowTextInput = false;
+        }
 		TogglePlayerControls(true);
 
 		// allow saving
