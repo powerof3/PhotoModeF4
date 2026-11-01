@@ -25,6 +25,7 @@ target("photomode-imgui")
 target("po3_PhotoModeF4")
     set_version("2.1.3")
     set_basename("po3_PhotoModeF4")
+    set_license("GPL-3.0-or-later") -- Additional linking/modding permissions: THIRD_PARTY_NOTICES.md
     add_rules("commonlibf4.plugin", {
         name = "po3_PhotoModeF4", author = "powerofthree",
         description = "Photo Mode for Fallout 4 1.11.240.0",

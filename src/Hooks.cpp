@@ -117,7 +117,11 @@ namespace PhotoMode
 		stl::write_vfunc<RE::ImageSpaceEffectDepthOfField, DOF_IsActive>();
 
 		stl::write_vfunc<RE::PauseMenu, CallParams>();
-		stl::write_vfunc<RE::MenuOpenHandler, MenuOpenHandler_OnButtonEvent>();
+		// This revision declares MenuOpenHandler::VTABLE privately. Use the
+        // same public generated vtable registry entry, without changing its ID.
+        REL::Relocation<std::uintptr_t> menuOpenVtable{ RE::VTABLE::MenuOpenHandler[0] };
+        MenuOpenHandler_OnButtonEvent::func = menuOpenVtable.write_vfunc(
+            MenuOpenHandler_OnButtonEvent::idx, MenuOpenHandler_OnButtonEvent::thunk);
 
 		stl::write_vfunc<RE::TESIdleForm, SetFormEditorID>();
 	}

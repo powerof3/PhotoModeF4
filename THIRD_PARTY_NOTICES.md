@@ -18,10 +18,13 @@ Other linked code: Dear ImGui (Omar Cornut and contributors, MIT), powerofthree'
 ImGui extensions (retain upstream MIT notice), CLibUtil (powerofthree, MIT),
 DirectXTex (Microsoft, MIT), FreeType (The FreeType Project, FreeType License
 option; acknowledge use of FreeType), spdlog (Gabi Melman and contributors, MIT),
-RapidFuzz (Max Bachmann and contributors, MIT), unordered_dense (Martin Ankerl,
-MIT), SRELL (D. Y. and contributors, BSD-2-Clause). CLibUtil embeds SimpleIni
+RapidFuzz (Max Bachmann and contributors, MIT), unordered_dense (Martin Leitner-Ankerl,
+MIT), SRELL (Nozomu Katoo, BSD-2-Clause). CLibUtil embeds SimpleIni
 (MIT) and XoshiroCpp (MIT); retain their header notices. Corresponding source
-must retain those notices. Dependency license files must accompany final releases.
+must retain those notices. This software is based in part on the work of the
+FreeType Team (https://www.freetype.org). The corresponding-source ZIP includes
+the tracked plugin/library build inputs and the six checksum-verified linked
+package source archives; no optional ImGui sample font binaries are included. Dependency license files must accompany final releases.
 
 Font Awesome icon-name header carries its existing attribution. No third-party
 font files or Bethesda controller glyph data are distributed. Install ImGui Fonts

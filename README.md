@@ -28,7 +28,7 @@ Use VS2022 C++ tools and Windows SDK, XMake **3.0.3**, Git and Python 3:
 git submodule update --init --recursive
 xmake f -p windows -a x64 -m releasedbg --toolchain=msvc -y
 xmake -y -vD
-python scripts/package_release.py --dll build/windows/x64/releasedbg/po3_PhotoModeF4.dll --pdb build/windows/x64/releasedbg/po3_PhotoModeF4.pdb --output dist
+python scripts/package_release.py --dll build/windows/x64/releasedbg/po3_PhotoModeF4.dll --pdb build/windows/x64/releasedbg/po3_PhotoModeF4.pdb --output dist --source-bundle
 ```
 
 The official CommonLibF4 plugin rule generates F4SE metadata and Windows resources.
@@ -39,7 +39,8 @@ CMake/vcpkg project files are legacy reference pending confirmation of the Windo
 XMake build; do not use them for the new dependency integration.
 
 GitHub Actions runs on pushes, PRs and manual dispatch, checks exports and uploads
-DLL, PDB and a DLL-only installation ZIP with documentation/notices. Build failure
+DLL, PDB, dependency lock, a corresponding-source ZIP, and a DLL-only installation
+ZIP with documentation/notices. Build failure
 is a release blocker. Review the workflow logs and perform TESTING.md before
 publishing a compatible release. Portable checks on Linux:
 
