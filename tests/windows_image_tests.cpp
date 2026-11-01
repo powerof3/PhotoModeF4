@@ -1,4 +1,6 @@
 #include "Graphics.h"
+#include "FontAssetPath.h"
+#include "WidgetID.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -18,6 +20,27 @@ int main()
         std::format("photomode-image-test-{}.png", GetCurrentProcessId());
     int result = 0;
     try {
+        require(Font::AssetPath("Roboto-Regular.ttf").generic_string() == "Data/Interface/ImGuiFonts/Roboto-Regular.ttf", "default font without fonts.ini");
+        require(Font::AssetPath("Data/Interface/ImGuiFonts/Roboto-Regular.ttf").generic_string() == "Data/Interface/ImGuiFonts/Roboto-Regular.ttf", "font prefix duplicated");
+        Translation::Manager translations;
+        require(translations.GetTranslation("$PM_ViewRoll") == "View Roll", "English defaults without translation file");
+        const auto* missing = translations.GetTranslation("$MissingOne").c_str();
+        for (int i = 0; i < 100; ++i) translations.GetTranslation(std::format("$Missing{}", i));
+        require(std::string(missing) == "$MissingOne", "missing-key label lifetime");
+        ImGui::CreateContext();
+        ImGui::GetIO().DisplaySize = ImVec2(800, 600);
+        ImGui::GetIO().DeltaTime = 1.0f / 60.0f;
+        ImGui::GetIO().Fonts->AddFontDefault();
+        ImGui::GetIO().Fonts->Build();
+        ImGui::NewFrame();
+        ImGui::Begin("ID regression");
+        float first = 0, second = 0;
+        ImGuiID firstID, secondID;
+        { ImGui::ScopedWidgetID scope(&first); firstID = ImGui::GetID("Identical translation"); }
+        { ImGui::ScopedWidgetID scope(&second); secondID = ImGui::GetID("Identical translation"); }
+        require(firstID != secondID, "translated sliders share an ImGui ID");
+        ImGui::End(); ImGui::EndFrame(); ImGui::DestroyContext();
+        std::cout << "UI checks passed: English defaults, font paths without INI, stable fallback labels, isolated widget IDs\n";
         // Distinct BGRA channels and zero capture alpha catch both transfer and
         // channel regressions. No game or renderer objects are touched here.
         DirectX::ScratchImage bgra;
