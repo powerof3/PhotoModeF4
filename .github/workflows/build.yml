@@ -19,7 +19,7 @@ jobs:
         with:
           xmake-version: '3.0.3'
           actions-cache-folder: '.xmake-cache'
-          actions-cache-key: 'windows-msvc-md-${{ hashFiles(".gitmodules", "xmake.lua") }}'
+          actions-cache-key: "windows-msvc-md-${{ hashFiles('.gitmodules', 'xmake.lua') }}"
       - name: Toolchain and dependency identities
         run: |
           xmake --version
