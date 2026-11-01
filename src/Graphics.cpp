@@ -14,6 +14,24 @@ namespace Texture
 		return a_path;
 	}
 
+    HRESULT ToRGBA8(const DirectX::Image& source, DirectX::ScratchImage& output)
+    {
+        // Treat sRGB SDR texels as encoded bytes during channel conversion.
+        // Otherwise Convert can decode sRGB and WIC FORCE_SRGB merely retags it,
+        // producing a dark PNG. No transfer change is needed for SDR capture.
+        auto view = source;
+        view.format = DirectX::MakeLinear(view.format);
+        if (view.format == DXGI_FORMAT_R8G8B8A8_UNORM) {
+            return output.InitializeFromImage(view);
+        }
+        const auto filter = DirectX::IsSRGB(source.format) ||
+            source.format == DXGI_FORMAT_B8G8R8A8_UNORM ||
+            source.format == DXGI_FORMAT_B8G8R8X8_UNORM ?
+            DirectX::TEX_FILTER_DEFAULT : DirectX::TEX_FILTER_SRGB_OUT;
+        return DirectX::Convert(view, DXGI_FORMAT_R8G8B8A8_UNORM,
+            filter, DirectX::TEX_THRESHOLD_DEFAULT, output);
+    }
+
     bool AlphaBlendImage(const DirectX::Image* base, const DirectX::Image* overlay,
         DirectX::ScratchImage& output, float intensity)
     {
@@ -32,10 +50,7 @@ namespace Texture
         const auto* source = input.GetImage(0, 0, 0);
         if (!source) return false;
         DirectX::ScratchImage rgba;
-        HRESULT hr = source->format == DXGI_FORMAT_R8G8B8A8_UNORM ?
-            rgba.InitializeFromImage(*source) :
-            DirectX::Convert(*source, DXGI_FORMAT_R8G8B8A8_UNORM,
-                DirectX::TEX_FILTER_DEFAULT, DirectX::TEX_THRESHOLD_DEFAULT, rgba);
+        HRESULT hr = ToRGBA8(*source, rgba);
         if (FAILED(hr)) return false;
         const auto* image = rgba.GetImage(0, 0, 0);
         for (std::size_t y = 0; y < image->height; ++y) {

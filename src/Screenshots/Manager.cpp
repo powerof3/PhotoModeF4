@@ -116,10 +116,12 @@ namespace Screenshot
 
     bool Manager::TakeScreenshot()
     {
-        const auto renderer = RE::BSGraphics::RendererData::GetSingleton();
+        const auto renderer = RE::BSGraphics::GetRendererData();
         if (!renderer || !renderer->device || !renderer->context) return false;
         // This render-target mapping remains game-specific; see RUNTIME_AUDIT.md.
-        const auto target = RE::BSGraphics::RenderTargetManager::GetSingleton().renderTargetID[63];
+        const auto targets = RE::BSGraphics::RenderTargetManager::GetSingleton();
+        if (!targets) return false;
+        const auto target = targets->renderTargetID[63];
         if (target >= std::size(renderer->renderTargets)) return false;
         auto* texture = reinterpret_cast<ID3D11Texture2D*>(renderer->renderTargets[target].texture);
         if (!texture) return false;
@@ -133,10 +135,7 @@ namespace Screenshot
         const auto* source = captured.GetImage(0, 0, 0);
         if (!source) return false;
         DirectX::ScratchImage input;
-        const auto converted = source->format == DXGI_FORMAT_R8G8B8A8_UNORM ?
-            input.InitializeFromImage(*source) :
-            DirectX::Convert(*source, DXGI_FORMAT_R8G8B8A8_UNORM,
-                DirectX::TEX_FILTER_DEFAULT, DirectX::TEX_THRESHOLD_DEFAULT, input);
+        const auto converted = Texture::ToRGBA8(*source, input);
         if (FAILED(converted)) return false;
         const std::string path = useCustomFolderDirectory ?
             std::format("{}/Screenshot{}.png", photoDirectory.string(), GetIndex()) :
@@ -147,10 +146,7 @@ namespace Screenshot
             const auto* original = overlay->image->GetImage(0, 0, 0);
             if (!original) return false;
             DirectX::ScratchImage rgba;
-            const auto convertedOverlay = original->format == DXGI_FORMAT_R8G8B8A8_UNORM ?
-                rgba.InitializeFromImage(*original) :
-                DirectX::Convert(*original, DXGI_FORMAT_R8G8B8A8_UNORM,
-                    DirectX::TEX_FILTER_DEFAULT, DirectX::TEX_THRESHOLD_DEFAULT, rgba);
+            const auto convertedOverlay = Texture::ToRGBA8(*original, rgba);
             if (FAILED(convertedOverlay)) return false;
             DirectX::ScratchImage resized;
             const auto* layer = rgba.GetImage(0, 0, 0);

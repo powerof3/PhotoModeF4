@@ -3,6 +3,9 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: windows-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -49,6 +52,8 @@ jobs:
             if (!($exports -match $symbol)) { throw "Missing export $symbol" }
           }
           python scripts/package_release.py --dll $dll.FullName --pdb $pdb.FullName --output dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item xmake-requires.lock dist/ -ErrorAction Stop
       - name: Build diagnostics
         if: failure()
         shell: pwsh

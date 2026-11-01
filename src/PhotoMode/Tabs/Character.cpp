@@ -39,6 +39,7 @@ namespace PhotoMode
 	void Character::GetOriginalState()
 	{
 		originalState.Get(character);
+        currentState.visible = originalState.visible;
 
 		effectShaders.InitForms();
 		effectVFX.InitForms();
@@ -63,12 +64,12 @@ namespace PhotoMode
 			rotationChanged = false;
 		}
 
-		if (!currentState.visible) {
-			if (const auto root = character->Get3D()) {
-				root->CullGeometry(false);
-			}
-			currentState.visible = true;
-		}
+		if (currentState.visible != originalState.visible) {
+            if (const auto root = character->Get3D()) {
+                root->CullGeometry(!originalState.visible);
+            }
+            currentState.visible = originalState.visible;
+        }
 
 		// revert idles
 		idles.Reset();

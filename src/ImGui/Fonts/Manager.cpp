@@ -167,5 +167,5 @@ void ImGui::ButtonIconWithLabel(const char* a_text, const Font::Button& a_key, b
 	auto& [icon, useControllerButtonFont] = a_key;
 	ImGui::ButtonIcon(icon, useControllerButtonFont, a_centerIcon);
 	ImGui::SameLine();
-	ImGui::Text(a_text);
+	ImGui::TextUnformatted(a_text);
 }

@@ -183,7 +183,7 @@ namespace Font
 			{ 256 + 1, "Mouse2)" },
 			{ 256 + 2, "Mouse3)" },
 			{ 256 + 3, "Mouse4)" },
-			{ 256 + 7, "Mouse5)" },
+			{ 256 + 4, "Mouse5)" },
 			{ 256 + 5, "Mouse6)" },
 			{ 256 + 6, "Mouse7)" },
 			{ 256 + 7, "Mouse8)" },
