@@ -57,3 +57,9 @@ not for building the F4SE plugin.
 Original author: powerofthree. Thanks to libxse, Dear ImGui and the dependency
 authors listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Original MIT
 copyright remains in LICENSE.txt; the linked DLL is not advertised as MIT-only.
+
+English UI text is built in. An optional UTF-16LE/BOM
+`Data/Interface/Translations/PhotoMode_<LANGUAGE>.txt` overrides defaults (EN is
+loaded before the selected language). Missing keys retain readable defaults.
+`Data/Interface/PhotoMode/fonts.ini` is optional: bare font names are resolved
+under `Data/Interface/ImGuiFonts` even when that configuration file is absent.

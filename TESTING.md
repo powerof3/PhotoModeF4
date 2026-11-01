@@ -43,3 +43,16 @@ GPU, resolution, HDR/SDR, and other UI/camera mods. Check the plugin log first.
 Use an image tool to inspect alpha extrema in every generated PNG, including
 fully transparent overlay pixels. Compare captured colors against a known scene;
 alpha alone cannot rule out HDR conversion or premultiplied-color errors.
+
+## Follow-up from user testing
+
+On runtime 1.11.240 the tester reports normal screenshot appearance and working
+view roll, with a UI regression: absent translations made every label identical,
+so controls shared ImGui IDs. This is user observation, not a complete runtime
+certification. Built-in English labels and state-based widget IDs now cover the
+missing-file case. The optional fonts.ini previously controlled whether the font
+asset directory was prefixed; font path resolution now works without that file.
+Windows regression checks exercise English defaults, default/qualified font paths,
+stable missing-key string lifetime, and distinct ImGui IDs for equal labels.
+Retest each camera slider separately, then tabs, checkboxes, and controller
+navigation, both with and without optional translation/font configuration files.
