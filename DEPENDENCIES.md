@@ -46,3 +46,8 @@ SHA256 values used for the corresponding-source bundle. Git submodule sources
 (including Shared) and package recipes are included recursively without Git
 metadata or optional sample font binaries. CI source packaging verifies every
 archive checksum and fails if matching source cannot be retrieved.
+
+The original vcpkg manifest also listed rsm-mmio and xbyak. Photo Mode has no
+rsm-mmio API uses or generated Xbyak code; the unused legacy Xbyak include was
+removed. Hooks use CommonLib Shared's REL trampoline, initialized through F4SE,
+so neither unused package is a requirement of the migrated plugin.

@@ -32,3 +32,11 @@ font files or Bethesda controller glyph data are distributed. Install ImGui Font
 not part of that external mod dependency: it was referenced as compressed embedded
 controller TTF data. Its provenance and redistribution rights could not be verified;
 plain controller button labels replace it.
+
+ImGui's built-in emergency fallback embeds ProggyClean (Copyright 2004, 2005
+Tristan Grimmer, MIT). Its notice is included separately. This permitted fallback
+is distinct from the mandatory externally installed ImGui Fonts assets and the
+unavailable Bethesda controller glyphs; no standalone font binary is packaged.
+ImGui's included stb helpers (Sean Barrett and contributors) retain their MIT
+alternative notices in licenses/ and their complete source headers in the source
+bundle. The external font requirement is unchanged.
