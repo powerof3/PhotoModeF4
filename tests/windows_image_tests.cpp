@@ -1,4 +1,6 @@
 #include "Graphics.h"
+#include "OverlayImage.h"
+#include <thread>
 #include "FontAssetPath.h"
 #include "WidgetID.h"
 #include <iostream>
@@ -53,6 +55,13 @@ int main()
             }
         }
         require(Texture::SaveToPNG(bgra, path.string()), "save opaque PNG from sRGB BGRA");
+        HRESULT workerLoad = E_FAIL;
+        std::thread worker([&] {
+            DirectX::ScratchImage overlayImage;
+            workerLoad = PhotoMode::LoadOverlayImage(path, overlayImage);
+        });
+        worker.join();
+        require(SUCCEEDED(workerLoad), "overlay decoding on a thread without a pre-existing COM apartment");
         DirectX::ScratchImage decoded, rgba;
         require(SUCCEEDED(DirectX::LoadFromWICFile(path.c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, nullptr, decoded)), "decode PNG");
         require(SUCCEEDED(Texture::ToRGBA8(*decoded.GetImage(0, 0, 0), rgba)), "normalize decoded PNG");

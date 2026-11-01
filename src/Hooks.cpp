@@ -61,9 +61,9 @@ namespace PhotoMode
 				if (auto& movie = a_this->uiMovie) {
 					Scaleform::GFx::Value selectedEntry;
 					if (movie->GetVariable(&selectedEntry, "root1.Menu_mc.MainPanel_mc.List_mc.selectedEntry")) {
-						Scaleform::GFx::Value entryText;
+						Scaleform::GFx::Value entryMarker;
 						Scaleform::GFx::Value entryState;
-						if (auto result = selectedEntry.GetMember("text", &entryText); result && std::string(entryText.GetString()) == "$PM_Title_Menu") {
+						if (auto result = selectedEntry.GetMember("po3PhotoModeEntry", &entryMarker); result && entryMarker.GetBoolean()) {
 							if (result = selectedEntry.GetMember("disabled", &entryState); result && !entryState.GetBoolean()) {
 								MANAGER(PhotoMode)->ActivateFromPauseMenu();
 							}

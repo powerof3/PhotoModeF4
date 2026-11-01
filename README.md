@@ -63,3 +63,10 @@ English UI text is built in. An optional UTF-16LE/BOM
 loaded before the selected language). Missing keys retain readable defaults.
 `Data/Interface/PhotoMode/fonts.ini` is optional: bare font names are resolved
 under `Data/Interface/ImGuiFonts` even when that configuration file is absent.
+
+To restore the original overlay artwork, extract **only** the original mod's
+`Data/Interface/PhotoMode/overlays` folder into the active game/mod-manager Data
+folder. For example, vignette must be installed as
+`Data/Interface/PhotoMode/overlays/EFFECTS/VIGNETTE.png`. Keep the newly built DLL
+when copying original assets. The DLL package does not supply these PNG files.
+The plugin logs the overlay directory, successful load count and load failures.

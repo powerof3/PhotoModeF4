@@ -56,3 +56,13 @@ Windows regression checks exercise English defaults, default/qualified font path
 stable missing-key string lifetime, and distinct ImGui IDs for equal labels.
 Retest each camera slider separately, then tabs, checkboxes, and controller
 navigation, both with and without optional translation/font configuration files.
+
+The tester subsequently confirmed the translation/slider/font fixes. A raw
+`$PM_Title_Menu` pause entry now uses the plugin translation map; activation uses
+a separate marker instead of comparing displayed text. Missing vignette artwork
+was confirmed absent from the active installation and present only in the original
+archive. Install the original overlays separately and retest category selection,
+vignette intensity, screenshot compositing, and localized pause-menu activation.
+Portable tests cover the exact EFFECTS/VIGNETTE.png layout, nested categories,
+uppercase PNG extensions and missing directories. Windows tests decode a real PNG
+on a fresh worker thread using the overlay COM initialization helper.

@@ -657,7 +657,8 @@ namespace PhotoMode
 					if (modMenuIndex) {
 						Scaleform::GFx::Value entry;
 						movie->CreateObject(&entry);
-						entry.SetMember("text", "$PM_Title_Menu");
+						entry.SetMember("text", "$PM_Title_Menu"_T);
+                        entry.SetMember("po3PhotoModeEntry", true);
 						entry.SetMember("disabled", RE::UI::GetSingleton()->GetMenuOpen<RE::PipboyMenu>());
 						entry.SetMember("index", 14.0);
 						entry.SetMember("clipIndex", (std::uint32_t)4);

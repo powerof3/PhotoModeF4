@@ -1,4 +1,7 @@
 #include "ImageMath.h"
+#include "OverlayFiles.h"
+#include <fstream>
+#include <chrono>
 #include "CameraMath.h"
 #include <array>
 #include <cassert>
@@ -6,6 +9,22 @@
 
 int main()
 {
+    const auto root = std::filesystem::temp_directory_path() /
+        ("photomode-overlays-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::create_directories(root / "EFFECTS" / "nested");
+    std::filesystem::create_directories(root / "FRAMES");
+    for (const auto& relative : {"EFFECTS/VIGNETTE.png", "EFFECTS/nested/OTHER.PNG", "FRAMES/frame.PnG", "root.png", "ignore.txt"}) {
+        std::ofstream(root / relative).put('x');
+    }
+    std::error_code error;
+    const auto overlays = PhotoMode::FindOverlayFiles(root, error);
+    assert(!error && overlays.size() == 4);
+    assert(overlays.at("EFFECTS").front().filename() == "VIGNETTE.png");
+    assert(overlays.at("EFFECTS/nested").size() == 1);
+    assert(overlays.at("FRAMES").size() == 1 && overlays.at("General").size() == 1);
+    std::filesystem::remove_all(root);
+    assert(PhotoMode::FindOverlayFiles(root, error).empty() && error);
+
     // Three rows with padding exercises complete row coverage and preserves padding.
     std::array<std::uint8_t, 36> base{}, overlay{};
     base.fill(17);
