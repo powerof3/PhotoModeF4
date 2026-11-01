@@ -41,7 +41,15 @@ XMake build; do not use them for the new dependency integration.
 GitHub Actions runs on pushes, PRs and manual dispatch, checks exports and uploads
 DLL, PDB and a DLL-only installation ZIP with documentation/notices. Build failure
 is a release blocker. Review the workflow logs and perform TESTING.md before
-publishing a compatible release. Linux is supported for editing and portable tests,
+publishing a compatible release. Portable checks on Linux:
+
+```bash
+python3 -m unittest discover -s tests -v
+g++ -std=c++23 -Wall -Wextra -Werror -fsanitize=address,undefined -Iinclude tests/math_tests.cpp -o /tmp/photomode-tests
+/tmp/photomode-tests
+```
+
+Linux is supported for editing and portable tests,
 not for building the F4SE plugin.
 
 Original author: powerofthree. Thanks to libxse, Dear ImGui and the dependency

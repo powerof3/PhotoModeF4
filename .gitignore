@@ -5,3 +5,8 @@ build*/
 .xmake/
 .xmake-cache/
 dist/
+
+__pycache__/
+*.pyc
+math_tests.*
+!tests/math_tests.cpp
