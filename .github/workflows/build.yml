@@ -48,6 +48,11 @@ jobs:
         run: xmake f -p windows -a x64 -m releasedbg --toolchain=msvc -y -vD
       - name: Compile and link
         run: xmake -y -vD
+      - name: Windows PNG regression checks
+        run: |
+          xmake -y -vD photomode-image-tests
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          xmake run photomode-image-tests
       - name: Verify and package
         shell: pwsh
         run: |

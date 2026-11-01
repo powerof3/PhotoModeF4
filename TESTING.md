@@ -9,6 +9,10 @@ compile is not evidence that any hook is ABI-compatible.
 Run `python -m unittest discover -s tests -v` and the standalone image math test
 as described in README. Windows Actions configures XMake, builds releasedbg,
 checks the required exports with dumpbin, requires DLL and PDB, and packages them.
+It also builds/runs `photomode-image-tests`: real DirectXTex/WIC PNG roundtrips
+check sRGB BGRA channel preservation, opaque output with and without overlays,
+row coverage and failed-encode propagation. These tests do not exercise GPU
+readback or the game's screenshot hook.
 Linux cannot compile this MSVC/Windows SDK project. A Windows build of commit 8ebf901 passed configuration, compilation, linking,
 export checks, artifact generation and corresponding-source checks in
 [Actions run 41334429738](https://github.com/thecursedcometh2/PhotoModeF4AE/actions/runs/41334429738).
