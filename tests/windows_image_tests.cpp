@@ -75,6 +75,17 @@ int main()
         std::uint64_t next = 0;
         std::filesystem::path saved;
         require(Texture::SaveNewPNG(bgra, prefix, next, saved), "first session photo 0");
+        DirectX::ScratchImage stored, storedRGBA;
+        require(SUCCEEDED(PhotoMode::LoadOverlayImage(saved, stored)), "decode exclusively created PNG");
+        require(SUCCEEDED(Texture::ToRGBA8(*stored.GetImage(0, 0, 0), storedRGBA)), "normalize exclusively created PNG");
+        const auto* storedImage = storedRGBA.GetImage(0, 0, 0);
+        require(storedImage->width == 2 && storedImage->height == 3, "new PNG dimensions");
+        for (std::size_t y = 0; y < 3; ++y) {
+            for (std::size_t x = 0; x < 2; ++x) {
+                const auto* pixel = storedImage->pixels + y * storedImage->rowPitch + x * 4;
+                require(pixel[0] == 90 + y && pixel[1] == 20 && pixel[2] == 10 && pixel[3] == 255, "exclusive PNG colors/opacity");
+            }
+        }
         const auto firstBytes = readBytes(saved);
         ++next;
         require(Texture::SaveNewPNG(bgra, prefix, next, saved), "first session photo 1");
