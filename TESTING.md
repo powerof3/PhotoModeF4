@@ -89,3 +89,7 @@ In game: back up existing photos, take two shots, exit/restart, take two more in
 both custom and normal-folder modes. Confirm four distinct images and unchanged
 original file hashes. Repeat without PhotoMode INI files and with an existing
 Screenshot4294967295.png; numbering may legitimately continue above that value.
+
+Queued Photo Mode capture failures display a failure notification and suppress
+the unchecked vanilla writer, avoiding any fallback that could reuse a stale
+filename. Native screenshots not queued by Photo Mode retain their normal path.

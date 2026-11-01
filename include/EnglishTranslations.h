@@ -55,6 +55,7 @@ inline constexpr std::pair<const char*, const char*> EnglishDefaults[] = {
     {"$PM_ResetNotifTime", "Time and weather reset"},
     {"$PM_Rotation", "Rotation"},
     {"$PM_Saturation", "Saturation"},
+    {"$PM_ScreenshotFailed", "Photo could not be saved. Check the Photo Mode log."},
     {"$PM_ScreenshotNotif", "Screenshot saved"},
     {"$PM_ShowCharacter", "Show Character"},
     {"$PM_ShowPlayer", "Show Player"},

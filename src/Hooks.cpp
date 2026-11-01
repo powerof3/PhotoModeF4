@@ -133,21 +133,20 @@ namespace Screenshot
 	{
 		static void thunk(char const* a_path, RE::BSGraphics::TextureFileFormat a_format, std::uint32_t a_renderTarget)
 		{
-			bool skipVanillaScreenshot = false;
-
-			if (MANAGER(Input)->IsScreenshotQueued()) {
-				skipVanillaScreenshot = MANAGER(Screenshot)->TakeScreenshot();
-			}
-
-			if (!skipVanillaScreenshot) {
-				func(a_path, a_format, a_renderTarget);
-			}
-
-			MANAGER(Input)->OnScreenshotFinish();
-
-			if (skipVanillaScreenshot) {
-				RE::SendHUDMessage::ShowHUDMessage("$PM_ScreenshotNotif"_T, nullptr, true, false);
-			}
+            const bool queued = MANAGER(Input)->IsScreenshotQueued();
+            bool saved = false;
+            if (queued) {
+                saved = MANAGER(Screenshot)->TakeScreenshot();
+            } else {
+                func(a_path, a_format, a_renderTarget);
+            }
+            MANAGER(Input)->OnScreenshotFinish();
+            if (queued) {
+                // Never fall through to an unchecked writer after a custom save
+                // failure: it could reuse the same stale vanilla index.
+                RE::SendHUDMessage::ShowHUDMessage(saved ? "$PM_ScreenshotNotif"_T : "$PM_ScreenshotFailed"_T, nullptr, true, false);
+                if (!saved) logger::error("Photo Mode screenshot was not saved; vanilla fallback suppressed to protect existing photos");
+            }
 		}
 		static inline REL::Relocation<decltype(thunk)> func;
 	};
