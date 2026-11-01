@@ -8,6 +8,7 @@ namespace CameraMath
     // by a local-Y axis-angle rotation; never write the stored gameplay angles.
     inline Quaternion ApplyLocalRoll(Quaternion q, float radians)
     {
+        if (!std::isfinite(radians)) return q;
         const float c = std::cos(radians * 0.5f);
         const float s = std::sin(radians * 0.5f);
         return {q.w * c - q.y * s, q.x * c - q.z * s,

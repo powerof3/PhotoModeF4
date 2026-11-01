@@ -35,6 +35,8 @@ int main()
     const CameraMath::Quaternion q{0.5f, 0.5f, 0.5f, 0.5f};
     const auto unchanged = CameraMath::ApplyLocalRoll(q, 0);
     assert(unchanged.w == q.w && unchanged.x == q.x && unchanged.y == q.y && unchanged.z == q.z);
+    const auto invalid = CameraMath::ApplyLocalRoll(q, std::numeric_limits<float>::quiet_NaN());
+    assert(invalid.w == q.w && invalid.x == q.x && invalid.y == q.y && invalid.z == q.z);
     const auto rolled = CameraMath::ApplyLocalRoll(q, 1.2f);
     const auto restored = CameraMath::ApplyLocalRoll(rolled, -1.2f);
     assert(std::abs(restored.w-q.w) < 1e-6f && std::abs(restored.x-q.x) < 1e-6f &&

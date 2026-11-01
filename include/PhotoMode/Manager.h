@@ -88,10 +88,10 @@ namespace PhotoMode
 		bool hiddenUI{ false };
 		bool blockInput{ false };
 
-		REX::TEnumSet<RE::UEFlag, std::uint32_t> controlFlags{
-			RE::UEFlag::kActivate,
-			RE::UEFlag::kMenu,
-			RE::UEFlag::kVATS
+		REX::TEnumSet<RE::UserEvents::USER_EVENT_FLAG, std::uint32_t> controlFlags{
+			RE::UserEvents::USER_EVENT_FLAG::kActivate,
+			RE::UserEvents::USER_EVENT_FLAG::kMenu,
+			RE::UserEvents::USER_EVENT_FLAG::kVATS
 		};
 		RE::BSTSmartPointer<RE::BSInputEnableLayer> inputLayer{};
 

@@ -60,6 +60,13 @@ jobs:
         run: |
           if (Get-Command xmake -ErrorAction SilentlyContinue) { xmake show -l targets }
           Get-ChildItem .xmake -Recurse -Filter '*.log' | ForEach-Object { Get-Content $_.FullName -Tail 150 }
+      - name: Preserve dependency lock
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dependency-lock
+          path: xmake-requires.lock
+          if-no-files-found: warn
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: PhotoModeF4-1.11.240
