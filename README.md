@@ -35,8 +35,8 @@ The official CommonLibF4 plugin rule generates F4SE metadata and Windows resourc
 No local game installation, VCPKG_ROOT, CommonLibF4Path or personal secrets are
 needed. Git submodules pin CommonLibF4, its recorded Shared dependency, original
 custom ImGui, CLibUtil and package recipes. See [DEPENDENCIES.md](DEPENDENCIES.md).
-CMake/vcpkg project files are legacy reference pending confirmation of the Windows
-XMake build; do not use them for the new dependency integration.
+The Photo Mode CMake/vcpkg integration has been removed after a successful Windows
+XMake build. CMake remains only an internal builder used by some package recipes.
 
 GitHub Actions runs on pushes, PRs and manual dispatch, checks exports and uploads
 DLL, PDB, dependency lock, a corresponding-source ZIP, and a DLL-only installation

@@ -51,7 +51,8 @@ ignored remainder rows. These are source-confirmed defects. New code normalizes
 capture and overlay to straight RGBA8 before byte operations, resizes either-axis
 mismatches, blends all rows with rowPitch, and flattens PNG alpha to 255 even with
 no overlay. It suppresses vanilla capture only when encoding succeeds. Bounds
-checks reject invalid render-target indices/null textures. DirectXTex performs
+checks reject invalid render-target indices/null textures. SDR sRGB views are converted without accidentally decoding then merely retagging
+the stored RGB bytes. DirectXTex performs
 GPU readback; WIC performs PNG encoding synchronously on the original caller.
 No worker threads survive encoding or buffer destruction.
 
@@ -70,7 +71,7 @@ channel conversion is delegated to DirectXTex, not manual channel guessing.
 | --- | --- |
 | Camera.cpp | PlayerCamera worldFOV/currentState, Main::SetCameraFOV, INI translation speed, ImageSpaceModifierInstanceDOF flags/data/strength; validate all controls and restore. |
 | Input.cpp | Input event device/key/analog fields, ControlMap TFC mapping, FreeCameraState worldZDirection; now checks actual camera state before cast. ImGui analog argument order and mouse button index corrected; device navigation still needs testing. |
-| PhotoMode/Manager.cpp | UI/menuSystemVisible, context stack, PlayerControls handlers, BSInputEnableManager layers, savingAllowed, active global, pause SWF entries. Empty context guard added. HUD restores entry visibility, saving restores prior permission, untouched VATS INI no longer forced. Control handler ownership/coexistence with other mods remains a risk. |
+| PhotoMode/Manager.cpp | UI/menuSystemVisible, context stack, PlayerControls handlers, BSInputEnableManager layers, savingAllowed, active global, pause SWF entries. Empty context guard added. HUD restores entry visibility, saving restores prior permission, untouched VATS INI no longer forced. Input handler enable flags now restore their recorded values only on the same handler objects, and text-entry requests are balanced; game/mod coexistence remains unverified. |
 | Time.cpp | Main freezeTime, BSTimer multiplier, Calendar global values, Sky weather override/update fields; all need target state restoration tests. |
 | Character.cpp | Actor data angle/position, 3D visibility, currentProcess idle/package APIs, temp effect handles and shader/art effects; target layouts and restoring the recorded visibility is implemented; gameplay effects need testing. Fixed temporary string lifetime in display label. |
 | Filters.cpp | ImageSpaceManager base/override pointers and cinematic/tint fields; original override pointer is now restored if Photo Mode still owns the override; mod coexistence remains unverified. |

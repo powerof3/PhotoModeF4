@@ -9,8 +9,12 @@ compile is not evidence that any hook is ABI-compatible.
 Run `python -m unittest discover -s tests -v` and the standalone image math test
 as described in README. Windows Actions configures XMake, builds releasedbg,
 checks the required exports with dumpbin, requires DLL and PDB, and packages them.
-Linux cannot compile this MSVC/Windows SDK project. Current results and hook risks
-are recorded in RUNTIME_AUDIT.md; do not mark unrun tests passed.
+Linux cannot compile this MSVC/Windows SDK project. A Windows build of commit 8ebf901 passed configuration, compilation, linking,
+export checks, artifact generation and corresponding-source checks in
+[Actions run 41334429738](https://github.com/thecursedcometh2/PhotoModeF4AE/actions/runs/41334429738).
+That establishes build readiness for that commit, not runtime compatibility.
+The final revision must pass its own CI. Hook risks are recorded in
+RUNTIME_AUDIT.md; do not mark unrun tests passed.
 
 ## Manual matrix (all pending)
 

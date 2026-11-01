@@ -28,11 +28,21 @@ select FTL), RapidFuzz v3.3.3 (MIT), SRELL 4.063 (BSD-2-Clause),
 unordered_dense v4.8.1 (MIT), spdlog v1.16.0 (MIT, compiled with std::format and
 wchar support by CommonLib Shared). Recipes and their expected archive hashes
 are fixed by the xmake-repo gitlink. CMake is an internal third-party package
-builder only, not the Photo Mode build system. Transitive build tool versions
-are selected by those recipes; inspect the generated xmake-requires.lock in CI.
+builder only, not the Photo Mode build system. The Windows-generated
+`xmake-requires.lock` is committed: requested transitive tool versions are CMake
+3.31.6, Meson 1.12.1, Ninja 1.13.2, pkgconf 2.5.1 and Python 3.14.3.
+XMake may satisfy build-tool probes with compatible preinstalled host tools;
+those host binaries follow windows-2022 image updates, not package archive pins.
+The linked library versions and checked archive hashes remain fixed.
 Do not update recipes or git dependencies implicitly for a release.
 
 Original source baseline: powerof3/PhotoModeF4 d47942eadd0004f9266027ad23ea49c49393f955,
 identical to this repository's starting commit. No experimental Photo Mode fork
-was incorporated. The original CMake/vcpkg files are retained until a Windows
-XMake build is confirmed, as required by the migration acceptance criteria.
+was incorporated. The original CMake/vcpkg integration was removed only after Windows XMake
+compilation, linking, export checks and packaging succeeded in CI.
+
+`scripts/dependency_sources.json` records the exact six source archive URLs and
+SHA256 values used for the corresponding-source bundle. Git submodule sources
+(including Shared) and package recipes are included recursively without Git
+metadata or optional sample font binaries. CI source packaging verifies every
+archive checksum and fails if matching source cannot be retrieved.

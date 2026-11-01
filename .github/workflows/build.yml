@@ -35,6 +35,8 @@ jobs:
         run: |
           xmake --version
           cl 2>&1 | Out-Host
+          python --version
+          cmake --version
           git submodule status --recursive
       - name: Portable regression checks
         run: |
@@ -60,6 +62,12 @@ jobs:
           python scripts/package_release.py --dll $dll.FullName --pdb $pdb.FullName --output dist --source-bundle
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Copy-Item xmake-requires.lock dist/ -ErrorAction Stop
+      - name: Collect source diagnostics
+        if: failure()
+        run: |
+          xmake project -k compile_commands
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/check_translation_units.py
       - name: Build diagnostics
         if: failure()
         shell: pwsh
