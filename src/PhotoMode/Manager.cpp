@@ -624,17 +624,17 @@ namespace PhotoMode
 	{
 		if (auto menu = RE::UI::GetSingleton()->GetMenu<RE::PauseMenu>()) {
 			if (const auto& movie = menu->uiMovie) {
-				RE::Scaleform::GFx::Value entryList;
+				Scaleform::GFx::Value entryList;
 				if (movie->GetVariable(&entryList, "root1.Menu_mc.MainPanel_mc.List_mc.entryList")) {
 					std::optional<std::uint32_t> modMenuIndex = std::nullopt;
 
 					const auto size = entryList.GetArraySize();
 					for (std::uint32_t i = 0; i < size; i++) {
-						RE::Scaleform::GFx::Value entry;
+						Scaleform::GFx::Value entry;
 						if (!entryList.GetElement(i, &entry)) {
 							continue;
 						}
-						RE::Scaleform::GFx::Value entryText;
+						Scaleform::GFx::Value entryText;
 						if (!entry.GetMember("text", &entryText)) {
 							continue;
 						}
@@ -645,7 +645,7 @@ namespace PhotoMode
 					}
 
 					if (modMenuIndex) {
-						RE::Scaleform::GFx::Value entry;
+						Scaleform::GFx::Value entry;
 						movie->CreateObject(&entry);
 						entry.SetMember("text", "$PM_Title_Menu");
 						entry.SetMember("disabled", RE::UI::GetSingleton()->GetMenuOpen<RE::PipboyMenu>());

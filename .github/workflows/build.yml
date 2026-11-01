@@ -1,0 +1,54 @@
+name: Windows build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          submodules: recursive
+      - uses: ilammy/msvc-dev-cmd@460a772e4cf7358f9f2f23773240813e40e7a894
+        with:
+          arch: x64
+      - uses: xmake-io/github-action-setup-xmake@3a1a5dddfc7fa625d9a698738334bf55655a861a
+        with:
+          xmake-version: '3.0.3'
+          actions-cache-folder: '.xmake-cache'
+          actions-cache-key: 'windows-msvc-md-${{ hashFiles(".gitmodules", "xmake.lua") }}'
+      - name: Toolchain and dependency identities
+        run: |
+          xmake --version
+          cl 2>&1 | Out-Host
+          git submodule status --recursive
+      - name: Configure
+        run: xmake f -p windows -a x64 -m releasedbg --toolchain=msvc -y -vD
+      - name: Compile and link
+        run: xmake -y -vD
+      - name: Verify and package
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem build -Recurse -Filter po3_PhotoModeF4.dll | Select-Object -First 1
+          $pdb = Get-ChildItem build -Recurse -Filter po3_PhotoModeF4.pdb | Select-Object -First 1
+          if (!$dll -or !$pdb) { throw 'Missing Photo Mode DLL or PDB' }
+          $exports = & dumpbin /exports $dll.FullName
+          $exports | Out-Host
+          foreach ($symbol in @('F4SEPlugin_Load', 'F4SEPlugin_Version')) {
+            if (!($exports -match $symbol)) { throw "Missing export $symbol" }
+          }
+          python scripts/package_release.py --dll $dll.FullName --pdb $pdb.FullName --output dist
+      - name: Build diagnostics
+        if: failure()
+        shell: pwsh
+        run: |
+          xmake show -l targets
+          Get-ChildItem .xmake -Recurse -Filter '*.log' | ForEach-Object { Get-Content $_.FullName -Tail 150 }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: PhotoModeF4-1.11.240
+          path: dist/*
+          if-no-files-found: error

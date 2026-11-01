@@ -44,15 +44,15 @@ namespace PhotoMode
 
 	struct CallParams
 	{
-		static void thunk(RE::PauseMenu* a_this, const RE::Scaleform::GFx::FunctionHandler::Params& a_params)
+		static void thunk(RE::PauseMenu* a_this, const Scaleform::GFx::FunctionHandler::Params& a_params)
 		{
 			auto id = reinterpret_cast<std::uintptr_t>(a_params.userData);
 			if (id == 16 && MANAGER(PhotoMode)->CanActivateFromPauseMenu()) {
 				if (auto& movie = a_this->uiMovie) {
-					RE::Scaleform::GFx::Value selectedEntry;
+					Scaleform::GFx::Value selectedEntry;
 					if (movie->GetVariable(&selectedEntry, "root1.Menu_mc.MainPanel_mc.List_mc.selectedEntry")) {
-						RE::Scaleform::GFx::Value entryText;
-						RE::Scaleform::GFx::Value entryState;
+						Scaleform::GFx::Value entryText;
+						Scaleform::GFx::Value entryState;
 						if (auto result = selectedEntry.GetMember("text", &entryText); result && std::string(entryText.GetString()) == "$PM_Title_Menu") {
 							if (result = selectedEntry.GetMember("disabled", &entryState); result && !entryState.GetBoolean()) {
 								MANAGER(PhotoMode)->ActivateFromPauseMenu();

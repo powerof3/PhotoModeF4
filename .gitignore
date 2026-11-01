@@ -1,3 +1,7 @@
 build*/
 /.vs
 /include/ImGui/Fonts/BGSFonts.h
+
+.xmake/
+.xmake-cache/
+dist/

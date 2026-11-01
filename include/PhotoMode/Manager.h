@@ -11,7 +11,7 @@
 namespace PhotoMode
 {
 	class Manager :
-		public REX::Singleton<Manager>,
+		public REX::TSingleton<Manager>,
 		public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
@@ -87,7 +87,7 @@ namespace PhotoMode
 		bool hiddenUI{ false };
 		bool blockInput{ false };
 
-		REX::EnumSet<RE::UEFlag, std::uint32_t> controlFlags{
+		REX::TEnumSet<RE::UEFlag, std::uint32_t> controlFlags{
 			RE::UEFlag::kActivate,
 			RE::UEFlag::kMenu,
 			RE::UEFlag::kVATS
