@@ -1,5 +1,6 @@
 #include "ImageMath.h"
 #include "MCMKey.h"
+#include "PhotoModeInputPolicy.h"
 #include "ScreenshotFiles.h"
 #include "OverlayFiles.h"
 #include <fstream>
@@ -23,6 +24,24 @@ int main()
     assert(PhotoMode::ControllerBinding(1) == 266);
     assert(PhotoMode::ControllerBinding(16) == 281);
     assert(!PhotoMode::ControllerBinding(-1) && !PhotoMode::ControllerBinding(17));
+    PhotoMode::VerticalInputOwner owner;
+    int state{}, otherState{};
+    std::int16_t direction = 1;
+    owner.Record(&state, direction);
+    owner.Release(&state, direction);
+    assert(direction == 0); // Opening SAM releases Photo Mode's held LMB.
+    direction = -1;
+    owner.Release(&state, direction);
+    assert(direction == -1); // Subsequent SAM movement is untouched.
+    owner.Record(&state, 1);
+    owner.Release(&state, direction);
+    assert(direction == -1); // Another writer changed the direction.
+    owner.Record(&otherState, -1);
+    owner.Release(&state, direction);
+    assert(direction == -1); // Different camera state is never changed.
+    owner.Record(&state, -1);
+    owner.Release(&state, direction);
+    assert(direction == 0); // RMB releases too; fresh Photo Mode input resumes.
 
     const auto root = std::filesystem::temp_directory_path() /
         ("photomode-overlays-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));

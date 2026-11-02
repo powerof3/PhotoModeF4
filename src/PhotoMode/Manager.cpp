@@ -49,8 +49,14 @@ namespace PhotoMode
 
 	bool Manager::ShouldBlockInput() const
 	{
-		return blockInput;
+		return blockInput || IsScreenArcherMenuOpen();
 	}
+
+    bool Manager::IsScreenArcherMenuOpen()
+    {
+        const auto ui = RE::UI::GetSingleton();
+        return ui && ui->GetMenuOpen("ScreenArcherMenu");
+    }
 
 	bool Manager::IsActive() const
 	{
@@ -160,7 +166,17 @@ namespace PhotoMode
 	}
 
 	bool Manager::OnFrameUpdate()
-	{
+    {
+        // SAM uses its own input context. Suspend our UI/input without ending
+        // Photo Mode, restoring camera state, or disabling SAM camera controls.
+        if (IsScreenArcherMenuOpen()) {
+            MANAGER(Input)->SuspendForExternalMenu();
+            if (allowTextInput) {
+                RE::ControlMap::GetSingleton()->SetTextEntryMode(false);
+                allowTextInput = false;
+            }
+            return false;
+        }
 		if (!IsValid()) {
 			Deactivate();
 			return false;
@@ -184,6 +200,7 @@ namespace PhotoMode
 
 	void Manager::Deactivate()
 	{
+        MANAGER(Input)->ReleaseVerticalMovement();
 		Revert(true);
 
 		//reset characters
@@ -680,6 +697,9 @@ namespace PhotoMode
 
 	EventResult Manager::ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 	{
+        if (a_event.menuName == "ScreenArcherMenu") {
+            MANAGER(Input)->SuspendForExternalMenu();
+        }
 		if (a_event.menuName == RE::Console::MENU_NAME) {
 			blockInput = a_event.opening;
 		} else if (a_event.menuName == "PauseMenu") {
@@ -688,7 +708,7 @@ namespace PhotoMode
 					(void)SetupPauseMenu();
 				}
 			} else {
-				Settings::GetSingleton()->LoadMCMSettings();
+                Settings::GetSingleton()->LoadMCMSettings();
                 logger::info("Reloaded Photo Mode MCM settings after closing PauseMenu");
 			}
 		}

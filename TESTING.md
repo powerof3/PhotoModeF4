@@ -93,3 +93,38 @@ Screenshot4294967295.png; numbering may legitimately continue above that value.
 Queued Photo Mode capture failures display a failure notification and suppress
 the unchecked vanilla writer, avoiding any fallback that could reuse a stale
 filename. Native screenshots not queued by Photo Mode retain their normal path.
+
+## MCM and Screen Archer Menu integration
+
+Automated: validate FO4 MCM control types, unique setting IDs, typed INI defaults,
+controller dropdown ranges, console hotkey registration and packaged MCM files.
+Portable C++ tests exercise captured key parsing, unbinding, rejection of modifiers
+and invalid device codes, controller dropdown conversion, and release of only the
+vertical direction owned by Photo Mode. These tests do not execute either mod.
+
+Run with working 1.11.240 builds of MCM and SAM. **All tests below remain pending.**
+
+| Test | Expected result |
+| --- | --- |
+| Install the full ZIP; open MCM > Photo Mode | General, Keyboard / Mouse, Controller pages display; no missing quest/ESP requirement |
+| Change speed, entry freeze, screenshot folder/hiding/repeat, hold time and prompt scheme | Close pause menu; log reports reload; relevant behavior changes, entry options on next activation |
+| Rebind all six keyboard actions; clear one; reset it | Updated prompts/actions, cleared action inactive, independent bindings; avoid duplicate/movement keys |
+| Change all controller dropdowns | Correct buttons and prompts; navigation remains usable with nonconflicting choices |
+| Bind global Toggle Photo Mode, including a modifier | Starts/stops outside pause menu via MCM's action; unbinding stops it; persists over restart |
+| Restart, reopen MCM, enter Photo Mode | User values and bindings persist; shipped defaults unchanged; screenshots still never overwrite |
+| Enter Photo Mode, then open SAM; click and right-click SAM controls repeatedly | No Photo Mode ascent/descent, screenshots or hotkey actions; Photo Mode UI hidden without exiting it |
+| Hold LMB or RMB to move vertically, then open SAM before releasing | Previously latched Photo Mode vertical direction stops; no drift |
+| With SAM open, use its position, rotation, FOV and camera drag controls | SAM camera controls still work; no camera reset caused by Photo Mode's context check |
+| Close SAM; press fresh LMB/RMB and Photo Mode keys | Photo Mode resumes without a latched click/key; vertical controls work again |
+| Repeat opening/closing SAM and Photo Mode, then save/load | Camera, HUD, controls, freeze and save state restore normally; no stuck input |
+
+The SAM guard checks its registered native menu name through CommonLib UI, never
+its old binary addresses. It does not disable the free-camera handler or SAM's
+input layer. Another mod may replace a menu or change input ordering; verify these
+transitions in game before claiming compatibility. MCM itself must already work
+on 1.11.240; the inspected upstream backend targets an earlier runtime.
+
+Screenshot counters are not written to MCM: its `i*` values use signed 32-bit
+`std::stoi`, whereas filenames can have 64-bit suffixes. Existing counter hints
+are read without lowering the live counter; filename scanning/exclusive creation
+remain authoritative. No new counter default is registered with MCM.

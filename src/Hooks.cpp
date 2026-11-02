@@ -85,7 +85,7 @@ namespace PhotoMode
 		{
 			func(a_this, a_event);
 
-			if (a_event->QUserEvent() == "VATS" && MANAGER(PhotoMode)->IsActive()) {
+			if (a_event->QUserEvent() == "VATS" && MANAGER(PhotoMode)->IsActive() && !PhotoMode::Manager::IsScreenArcherMenuOpen()) {
 				a_event->handled = RE::InputEvent::HANDLED_RESULT::kContinue;
 			}
 		}

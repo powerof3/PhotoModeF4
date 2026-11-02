@@ -98,3 +98,22 @@ Partial-write cleanup uses the newly owned handle rather than deleting a pathnam
 The manager serializes captures and UINT64_MAX exhaustion fails without wrapping.
 The lower-level SaveToPNG encoder is used only for caller-owned test paths;
 production captures call SaveNewPNG. See TESTING.md for restart and race tests.
+
+## Screen Archer Menu coexistence
+
+No new relocation or vtable hook. The `ScreenArcherMenu` native menu name is
+verified in SAM/constants.h at 97ce9c286b2ffcd91eed9d51f847631ff51664d6.
+Photo Mode's existing MenuOpenClose sink and frame/input paths query CommonLib
+UI::GetMenuOpen. While open, they skip Photo Mode drawing/input before the normal
+context validity check (SAM uses context 0x22, otherwise causing deactivation).
+The VATS event policy also leaves SAM events alone. SAM/camera.cpp directly
+updates FreeCameraState position/angles/FOV and is not intercepted or disabled.
+
+Photo Mode already synthesizes FreeCameraState::worldZDirection (int16) for TFC
+WorldZUp/Down. It now tracks the state pointer and last direction it wrote, and
+clears that direction once on suspension/exit only if both still match. It never
+dereferences a saved pointer; further SAM-owned changes are untouched. TFC mapping
+lookups are refreshed instead of cached indefinitely. No global handler or SAM
+input layer is toggled by this guard. Existing structure-layout assumptions are
+unchanged. Pure ownership-policy checks pass; actual SAM clicks, camera controls,
+menu ordering and game-thread behavior require the in-game matrix in TESTING.md.

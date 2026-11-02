@@ -14,12 +14,33 @@ Do not bundle fonts with this plugin. Missing fonts produce a logged fallback,
 not a replacement for the external dependency. Controller prompts use readable
 Xbox/PlayStation labels because the original embedded glyph header is absent.
 
-Install the original Photo Mode runtime distribution for its MCM, localization,
-pause-menu integration and overlays, then replace `Data/F4SE/Plugins/po3_PhotoModeF4.dll`
-with this build. The authoritative source checkout contains **no** ESP/ESL,
-Papyrus scripts, SWF, MCM JSON, localization files, or overlay assets. These cannot
-be reconstructed or bundled from this checkout. Do not mistake the DLL archive
-for the full original mod. No original tracked assets have been removed.
+Install this build's **PhotoModeF4-1.11.240.zip** through your mod manager, including
+its `Data/MCM/Config/PhotoMode` files. Installing only the DLL does not install MCM
+support. Install a working **1.11.240-compatible** [Mod Configuration Menu](https://github.com/reg2k/f4mcm)
+separately to use the settings pages and optional global hotkey. This package does
+not port or bundle MCM's native plugin. Pause-menu entry and the `PhotoMode`
+console command also work without MCM.
+
+Original overlay artwork is still a separate installation from the original mod
+archive; no third-party fonts, artwork, ESP/ESL, scripts or SWFs are bundled.
+The authored MCM settings use the native plugin directly and need no Photo Mode
+quest or ESP. Preserve existing `Data/MCM/Settings/PhotoMode.ini` and MCM's global
+keybind saves when upgrading; the package supplies defaults, never user overrides.
+
+In **MCM > Photo Mode**, General offers camera speed, freeze-on-entry, pause entry,
+screenshot options, controller prompts, hold duration and an optional global
+Toggle Photo Mode hotkey (initially unbound). Keyboard / Mouse and Controller
+pages rebind the six in-mode actions. Controller buttons use dropdowns because
+the inspected MCM key-capture widget only captures keyboard/mouse input. Avoid
+binding actions to the same key or to free-camera movement controls. Escape and
+Tab retain UI navigation roles. Close the pause menu to reload settings; entry
+options apply on the next activation. Legacy `i*Key` / `i*GamePad` INI bindings
+remain readable; the new MCM bindings take precedence within the same file.
+
+While Screen Archer Menu is open, Photo Mode hides its UI and suspends its own
+input, releasing vertical motion it previously synthesized. It leaves SAM's
+input handler, input layer and camera manipulation enabled. Closing SAM resumes
+Photo Mode. This behavior still requires in-game verification with your SAM build.
 
 ## Building
 
@@ -40,8 +61,8 @@ The Photo Mode CMake/vcpkg integration has been removed after a successful Windo
 XMake build. CMake remains only an internal builder used by some package recipes.
 
 GitHub Actions runs on pushes, PRs and manual dispatch, checks exports and uploads
-DLL, PDB, dependency lock, a corresponding-source ZIP, and a DLL-only installation
-ZIP with documentation/notices. Build failure
+DLL, PDB, dependency lock, a corresponding-source ZIP, and an installation ZIP including MCM configuration
+and documentation/notices. Build failure
 is a release blocker. Review the workflow logs and perform TESTING.md before
 publishing a compatible release. Portable checks on Linux:
 
