@@ -10,7 +10,7 @@ namespace Screenshot
 	void Manager::LoadMCMSettings(const CSimpleIniA& a_ini)
 	{
         if (const auto persisted = a_ini.GetValue("Screenshots", "iScreenshotIndex", nullptr)) {
-            if (const auto parsed = ParseIndex(persisted)) index = *parsed;
+            if (const auto parsed = ParseIndex(persisted)) index = std::max(index, *parsed);
         }
 		useCustomFolderDirectory = a_ini.GetBoolValue("Screenshots", "bCustomPhotoFolder", useCustomFolderDirectory);
 		autoHideMenus = a_ini.GetBoolValue("Screenshots", "bAutoHideMenus", autoHideMenus);
@@ -72,10 +72,8 @@ namespace Screenshot
     void Manager::IncrementIndex()
     {
         if (index != std::numeric_limits<std::uint64_t>::max()) ++index;
-        // Persistence is only a hint. Existing filenames remain authoritative.
-        Settings::GetSingleton()->Save(FileType::kMCM, [this](auto& ini) {
-            ini.SetValue("Screenshots", "iScreenshotIndex", std::to_string(index).c_str());
-        });
+        // Recover from filenames on restart. MCM's i* settings are signed 32-bit;
+        // never write our 64-bit bookkeeping into its user settings store.
     }
 
 	bool Manager::AllowMultiScreenshots() const

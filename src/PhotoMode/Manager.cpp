@@ -19,6 +19,8 @@ namespace PhotoMode
 	void Manager::LoadMCMSettings(const CSimpleIniA& a_ini)
 	{
 		freeCameraSpeed = a_ini.GetDoubleValue("Settings", "fFreeCameraTranslationSpeed", freeCameraSpeed);
+        if (!std::isfinite(freeCameraSpeed)) freeCameraSpeed = 4.0f;
+        freeCameraSpeed = std::clamp(freeCameraSpeed, 0.1f, 20.0f);
 		freezeTimeOnStart = a_ini.GetBoolValue("Settings", "bFreezeTimeOnStart", freezeTimeOnStart);
 		openFromPauseMenu = a_ini.GetBoolValue("Settings", "bOpenFromPauseMenu", openFromPauseMenu);
 	}
@@ -77,6 +79,7 @@ namespace PhotoMode
 
 	void Manager::Activate()
 	{
+        Settings::GetSingleton()->LoadMCMSettings();
 		cameraTab.GetOriginalState();
 		timeTab.GetOriginalState();
 
@@ -682,10 +685,11 @@ namespace PhotoMode
 		} else if (a_event.menuName == "PauseMenu") {
 			if (a_event.opening) {
 				if (openFromPauseMenu) {
-					openFromPauseMenu = SetupPauseMenu();
+					(void)SetupPauseMenu();
 				}
 			} else {
 				Settings::GetSingleton()->LoadMCMSettings();
+                logger::info("Reloaded Photo Mode MCM settings after closing PauseMenu");
 			}
 		}
 

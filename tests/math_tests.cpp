@@ -1,4 +1,5 @@
 #include "ImageMath.h"
+#include "MCMKey.h"
 #include "ScreenshotFiles.h"
 #include "OverlayFiles.h"
 #include <fstream>
@@ -10,6 +11,19 @@
 
 int main()
 {
+    assert(PhotoMode::ParseMCMKey("82,0", false) == 82);
+    assert(PhotoMode::ParseMCMKey("32", false) == 32);
+    assert(PhotoMode::ParseMCMKey("0,0", false) == 0);
+    assert(PhotoMode::ParseMCMKey("258,0", false) == 258);
+    assert(PhotoMode::ParseMCMKey("281,0", true) == 281);
+    for (const auto invalid : {"", "82,1", "82,0,0", "-1,0", "x,0", "4294967296,0", "266,0"})
+        assert(!PhotoMode::ParseMCMKey(invalid, false));
+    assert(!PhotoMode::ParseMCMKey("82,0", true));
+    assert(PhotoMode::ControllerBinding(0) == 0);
+    assert(PhotoMode::ControllerBinding(1) == 266);
+    assert(PhotoMode::ControllerBinding(16) == 281);
+    assert(!PhotoMode::ControllerBinding(-1) && !PhotoMode::ControllerBinding(17));
+
     const auto root = std::filesystem::temp_directory_path() /
         ("photomode-overlays-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::create_directories(root / "EFFECTS" / "nested");

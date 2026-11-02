@@ -25,7 +25,10 @@ namespace Input
 
 	void Manager::LoadMCMSettings(const CSimpleIniA& a_ini)
 	{
-		keyHeldDuration = static_cast<float>(a_ini.GetDoubleValue("Controls", "iKeyHeldDuration", keyHeldDuration));
+		keyHeldDuration = static_cast<float>(a_ini.GetDoubleValue("Controls", "fKeyHeldDuration",
+            a_ini.GetDoubleValue("Controls", "iKeyHeldDuration", keyHeldDuration)));
+        if (!std::isfinite(keyHeldDuration)) keyHeldDuration = 0.5f;
+        keyHeldDuration = std::clamp(keyHeldDuration, 0.1f, 3.0f);
 	}
 
 	bool Manager::IsScreenshotQueued() const

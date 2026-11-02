@@ -22,8 +22,8 @@ def package(dll, pdb, output):
         for source in sorted((root / 'licenses').rglob('*')):
             if source.is_file():
                 archive.write(source, source.relative_to(root).as_posix())
-        # Upstream checkout contains no runtime assets. Preserve any reviewed assets
-        # later supplied in Data; fonts must remain an independently installed mod.
+        # Include authored MCM configuration and any other reviewed Data assets;
+        # fonts must remain an independently installed mod.
         for source in sorted((root / 'Data').rglob('*')):
             if source.is_file():
                 if 'ImGuiFonts' in source.parts:
