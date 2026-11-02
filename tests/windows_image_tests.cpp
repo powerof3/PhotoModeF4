@@ -90,6 +90,14 @@ int main()
         ++next;
         require(Texture::SaveNewPNG(bgra, prefix, next, saved), "first session photo 1");
         const auto secondBytes = readBytes(saved);
+        // New photos deliberately contain different pixels, so byte comparisons
+        // detect replacement rather than merely rewriting an identical PNG.
+        const auto* newScene = bgra.GetImage(0, 0, 0);
+        for (std::size_t y = 0; y < newScene->height; ++y) {
+            for (std::size_t x = 0; x < newScene->width; ++x) {
+                newScene->pixels[y * newScene->rowPitch + x * 4 + 2] = static_cast<std::uint8_t>(180 + y);
+            }
+        }
         // Simulate a restart with no persisted index/configuration.
         std::error_code scanError;
         next = Screenshot::NextFileIndex(prefix, 0, scanError);

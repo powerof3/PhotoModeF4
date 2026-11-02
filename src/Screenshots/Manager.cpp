@@ -51,8 +51,11 @@ namespace Screenshot
     {
         if (useCustomFolderDirectory) return photoDirectory / "Screenshot";
         const auto setting = RE::GetINISetting("sScreenShotBaseName:Display");
-        const auto base = setting ? setting->GetString() : nullptr;
-        return std::filesystem::u8path(base && *base ? base : "ScreenShot").concat("_");
+        auto base = setting ? setting->GetString() : std::string_view{};
+        if (base.empty()) base = "ScreenShot";
+        auto prefix = std::filesystem::u8path(base.begin(), base.end());
+        prefix += "_";
+        return prefix;
     }
 
     void Manager::AssignHighestPossibleIndex()
